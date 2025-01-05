@@ -170,13 +170,27 @@ export const FormComponent: React.FC<{
   fields: RequestInputType[];
   endpoint: string;
   onResponse: (response: { status: 'Success' | 'Error'; value: any }) => void;
-}> = ({ fields, endpoint, onResponse }) => {
+  overrides?: {
+    [key: string]: any | (() => any); // Key can be field names or 'url'
+  };
+}> = ({ fields, endpoint, onResponse, overrides = {} }) => {
   const [formData, setFormData] = useState<{ [key: string]: any }>({});
   const [url, setUrl] = useState<string>('');
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [submissionMessage, setSubmissionMessage] = useState<string>('');
 
+  // Helper function to get the value of an overridden field
+  const getOverriddenValue = (fieldName: string) => {
+    if (overrides[fieldName]) {
+      return typeof overrides[fieldName] === 'function'
+        ? overrides[fieldName]()
+        : overrides[fieldName];
+    }
+    return undefined;
+  };
+
+  // Handle input changes for non-overridden fields
   const handleInputChange = (fieldName: string) => (value: any) => {
     console.log(`The value of field ${fieldName} was changed to ${value}`);
     setFormData(prevData => ({
@@ -185,6 +199,7 @@ export const FormComponent: React.FC<{
     }));
   };
 
+  // Handle URL changes if it's not overridden
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUrl(e.target.value.trim());
   };
@@ -194,15 +209,22 @@ export const FormComponent: React.FC<{
     setIsSubmitting(true);
     setSubmissionMessage('');
 
+    // Use overridden URL if provided, otherwise use the user input
+    const finalUrl = getOverriddenValue('url') || url;
+
+    // Validate fields
     const validationErrors: { [key: string]: string } = {};
     fields.forEach(field => {
-      if (!field.nullable && !formData[field.field_name]) {
+      const fieldValue = getOverriddenValue(field.field_name) || formData[field.field_name];
+      if (!field.nullable && !fieldValue) {
         validationErrors[field.field_name] = `${field.field_name} is required.`;
       }
     });
-    if (!url) {
+
+    // Validate URL
+    if (!finalUrl) {
       validationErrors.url = 'URL is required.';
-    } else if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    } else if (!finalUrl.startsWith('http://') && !finalUrl.startsWith('https://')) {
       validationErrors.url = 'URL must start with http:// or https://';
     }
 
@@ -213,16 +235,19 @@ export const FormComponent: React.FC<{
       return;
     }
 
+    // Construct the data object, using overridden values where available
     let data: any = {};
     fields.forEach(field => {
-      if (formData[field.field_name]) {
-        data[field.field_name] = formData[field.field_name];
+      const fieldValue = getOverriddenValue(field.field_name) || formData[field.field_name];
+      //if (fieldValue !== undefined) {
+      if (fieldValue) {
+        data[field.field_name] = fieldValue;
       }
     });
 
     try {
-      console.log(`Going to send request to ${url + endpoint}, having fields ${fields}, with data ${data}`);
-      const response = await sendPostRequest(fields, data, url + endpoint);
+      console.log(`Going to send request to ${finalUrl + endpoint}, having fields ${fields}, with data ${data}`);
+      const response = await sendPostRequest(fields, data, finalUrl + endpoint);
 
       // Handle the response based on the status
       if (response.status === 'Success') {
@@ -243,27 +268,35 @@ export const FormComponent: React.FC<{
 
   return (
     <form onSubmit={handleSubmit}>
-      <div>
-        <label htmlFor="url">URL:</label>
-        <input
-          type="text"
-          id="url"
-          value={url}
-          onChange={handleUrlChange}
-          required
-        />
-        {errors.url && <span style={{ color: 'red' }}>{errors.url}</span>}
-      </div>
-      {fields.map(field => (
-        <RequestFormField
-          key={field.field_name}
-          field={field}
-          value={formData[field.field_name]}
-          onChange={handleInputChange(field.field_name)}
-          onBlur={() => {}}
-          error={errors[field.field_name]}
-        />
-      ))}
+      {/* Render URL input only if it's not overridden */}
+      {!overrides.url && (
+        <div>
+          <label htmlFor="url">URL:</label>
+          <input
+            type="text"
+            id="url"
+            value={url}
+            onChange={handleUrlChange}
+            required
+          />
+          {errors.url && <span style={{ color: 'red' }}>{errors.url}</span>}
+        </div>
+      )}
+
+      {/* Render fields that are not overridden */}
+      {fields
+        .filter(field => !overrides[field.field_name]) // Skip overridden fields
+        .map(field => (
+          <RequestFormField
+            key={field.field_name}
+            field={field}
+            value={formData[field.field_name]}
+            onChange={handleInputChange(field.field_name)}
+            onBlur={() => {}}
+            error={errors[field.field_name]}
+          />
+        ))}
+
       <button type="submit" disabled={isSubmitting}>
         {isSubmitting ? 'Submitting...' : 'Submit'}
       </button>
@@ -271,7 +304,6 @@ export const FormComponent: React.FC<{
     </form>
   );
 };
-
 
 // interface RequestObjectProps {
 //   baseBuilder: () => string;
