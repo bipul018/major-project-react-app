@@ -166,8 +166,11 @@ export const RequestFormField: React.FC<FormFieldProps> =
   };
 
 
- 
-export const FormComponent: React.FC<{ fields: RequestInputType[], endpoint: string }> = ({ fields, endpoint }) => {
+export const FormComponent: React.FC<{
+  fields: RequestInputType[];
+  endpoint: string;
+  onResponse: (response: { status: 'Success' | 'Error'; value: any }) => void;
+}> = ({ fields, endpoint, onResponse }) => {
   const [formData, setFormData] = useState<{ [key: string]: any }>({});
   const [url, setUrl] = useState<string>('');
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -210,23 +213,29 @@ export const FormComponent: React.FC<{ fields: RequestInputType[], endpoint: str
       return;
     }
 
-    let data:any = {};
+    let data: any = {};
     fields.forEach(field => {
-      if(formData[field.field_name]){
-	data[field.field_name] = formData[field.field_name];
-      }});
+      if (formData[field.field_name]) {
+        data[field.field_name] = formData[field.field_name];
+      }
+    });
 
-    
     try {
-      console.log(`Going to send request to ${url+endpoint}, having fields ${fields}, with data ${data}`);
+      console.log(`Going to send request to ${url + endpoint}, having fields ${fields}, with data ${data}`);
       const response = await sendPostRequest(fields, data, url + endpoint);
-      setSubmissionMessage('Form submitted successfully.');
-      setFormData({});
-      setUrl('');
-      console.log("Response was " + response);
+
+      // Handle the response based on the status
+      if (response.status === 'Success') {
+        setSubmissionMessage('Form submitted successfully.');
+        onResponse({ status: 'Success', value: response.value });
+      } else if (response.status === 'Error') {
+        setSubmissionMessage('Error submitting form.');
+        onResponse({ status: 'Error', value: response.value });
+      }
     } catch (error) {
       setSubmissionMessage('Error submitting form.');
       console.error(`Error ${error} happened while submission`);
+      onResponse({ status: 'Error', value: error });
     } finally {
       setIsSubmitting(false);
     }
@@ -262,7 +271,6 @@ export const FormComponent: React.FC<{ fields: RequestInputType[], endpoint: str
     </form>
   );
 };
-
 
 
 // interface RequestObjectProps {

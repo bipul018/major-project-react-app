@@ -1,11 +1,9 @@
-import { useState } from 'react'
 //import reactLogo from './assets/react.svg'
 //import viteLogo from '/vite.svg'
 import './App.css'
 
-//import {RequestFormField} from './RequestMaker.tsx';
+
 import {FormComponent} from './RequestMaker.tsx';
-//import {sendPostRequest, FormComponent} from './RequestMaker.tsx';
 import {taskItems} from './taskItems.ts';
 import {TaskListWithDropdown} from './ChooseTask.tsx';
 
@@ -21,7 +19,8 @@ function App() {
 	  taskItems.map((it: any) => (
 	    <div>
 	      <span> {it.endpoint} </span>
-	      <FormComponent endpoint = {it.endpoint} fields = {it.request_fields} />
+	      <FormComponent endpoint = {it.endpoint} fields = {it.request_fields}
+  onResponse = {(r: any) => {console.log("Response was" + r);}}/>
 	    </div>
 	  ))
 	} 

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import {FormComponent} from './RequestMaker.tsx';
+import {RequestInputType} from './taskItems.ts';
 
 export const TaskListWithDropdown: React.FC<{ taskItems: Array<{ endpoint: string; request_fields: RequestInputType[] }> }> = ({ taskItems }) => {
   const [selectedEndpoint, setSelectedEndpoint] = useState<string>(taskItems[0].endpoint);
@@ -30,7 +31,9 @@ export const TaskListWithDropdown: React.FC<{ taskItems: Array<{ endpoint: strin
       {selectedTask && (
         <div>
           <h4>Endpoint: {selectedTask.endpoint}</h4>
-          <FormComponent endpoint={selectedTask.endpoint} fields={selectedTask.request_fields} />
+          <FormComponent endpoint={selectedTask.endpoint} fields={selectedTask.request_fields}
+	    onResponse = {(r: any) => {console.log("Response was" +
+	      JSON.stringify(r));}}/>
         </div>
       )}
     </div>
