@@ -1,6 +1,5 @@
-import React, {useState} from 'react';
-//import { useForm, Controller } from 'react-hook-form';
-//import axios from 'axios';
+import React, { useState } from 'react';
+import { Box, Typography, TextField, Button, Grid } from '@mui/material';
 import { RequestInputType, RequestUnitType } from './taskItems';
 
 export function sendPostRequest(
@@ -51,7 +50,6 @@ export function sendPostRequest(
   // Send POST request with appropriate headers and body
   return fetch(url, {
     method: 'POST',
-    //method: hasFiles ? "POST":"GET",
     headers: hasFiles ? {} : { 'Content-Type': 'application/json' },
     body: hasFiles ? data : JSON.stringify(data),
   })
@@ -71,11 +69,11 @@ export type FormFieldProps = {
 };
 
 export const RequestFormField: React.FC<FormFieldProps> =
-  ({field, value, onChange, onBlur, error,}) => {
+  ({ field, value, onChange, onBlur, error }) => {
 
     const [v, setV] = useState(value);
 
-    const wrap_on_change = (val_getter:any) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const wrap_on_change = (val_getter: any) => (e: React.ChangeEvent<HTMLInputElement>) => {
       const final_value = val_getter(e.target.value);
       setV(final_value);
       onChange(final_value);
@@ -85,87 +83,104 @@ export const RequestFormField: React.FC<FormFieldProps> =
     const input_fields = {
       id: field.field_name,
       required: !field.nullable,
-      value: v||"",
+      value: v || "",
       onBlur: onBlur,
     };
-    
+
     switch (field.type) {
       case RequestUnitType.String:
-	return (
-          <div>
-            <label htmlFor={field.field_name}>{field.field_name}</label>
-            <input
+        return (
+          <Box mb={2}>
+            <TextField
+              label={field.field_name}
               type="text"
-	      {...input_fields}
-	      onChange={wrap_on_change((v:any)=>v)}
+              fullWidth
+              {...input_fields}
+              onChange={wrap_on_change((v: any) => v)}
+              error={!!error}
+              helperText={error}
             />
-            {error && <span style={{ color: 'red' }}>{error}</span>}
-          </div>
-	);
+          </Box>
+        );
       case RequestUnitType.Integer:
-	return (
-          <div>
-            <label htmlFor={field.field_name}>{field.field_name}</label>
-            <input
+        return (
+          <Box mb={2}>
+            <TextField
+              label={field.field_name}
               type="number"
-              step="1"
-	      {...input_fields}
-	      onChange={wrap_on_change(Number)}
-	      //onChange={(e) => onChange(Number(e.target.value))}
+              fullWidth
+              {...input_fields}
+              onChange={wrap_on_change(Number)}
+              error={!!error}
+              helperText={error}
             />
-            {error && <span style={{ color: 'red' }}>{error}</span>}
-          </div>
-	);
+          </Box>
+        );
       case RequestUnitType.Decimal:
-	return (
-          <div>
-            <label htmlFor={field.field_name}>{field.field_name}</label>
-            <input
+        return (
+          <Box mb={2}>
+            <TextField
+              label={field.field_name}
               type="number"
-              //step="0.01"
-	      {...input_fields}
-	      onChange={wrap_on_change(Number)}
-              //onChange={(e) => onChange(Number(e.target.value))}
+              fullWidth
+              {...input_fields}
+              onChange={wrap_on_change(Number)}
+              error={!!error}
+              helperText={error}
             />
-            {error && <span style={{ color: 'red' }}>{error}</span>}
-          </div>
-	);
+          </Box>
+        );
       case RequestUnitType.Video:
 	return (
-          <div>
-            <label htmlFor={field.field_name}>{field.field_name}</label>
-            <input
-	      //value={v}
+	  <Box mb={2}>
+	    {/* Hidden file input */}
+	    <input
               type="file"
               accept="video/*"
               id={field.field_name}
               required={!field.nullable}
               onBlur={onBlur}
               onChange={(e) => {
-		const final_value = e.target.files ? e.target.files[0]:null;
+		const final_value = e.target.files ? e.target.files[0] : null;
 		setV(final_value);
 		onChange(final_value);
-		//console.log(`Hello, you changed the value to ${typeof(v)} as value ${final_value}`);
-	      }
-	      }
-            />
-            {field.nullable && (
-              <button type="button" onClick={() => {
-		setV(null);
-		onChange(null)
-	      }}>
-		Clear
-              </button>
-            )}
-            {error && <span style={{ color: 'red' }}>{error}</span>}
-          </div>
+              }}
+              style={{ display: 'none' }}
+	    />
+	    {/* Upload and Clear buttons */}
+	    <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+              <Button
+		variant="outlined"
+		component="label"
+		htmlFor={field.field_name}
+              >
+		Upload {field.field_name}
+              </Button>
+              {field.nullable && (
+		<Button
+		  variant="outlined"
+		  onClick={() => {
+		    setV(null);
+		    onChange(null);
+		  }}
+		>
+		  Clear
+		</Button>
+              )}
+	    </Box>
+	    {/* Display file name */}
+	    {v && (
+              <Typography variant="body2" sx={{ mt: 1 }}>
+		Selected file: <strong>{v.name}</strong>
+              </Typography>
+	    )}
+	    {error && <Typography color="error">{error}</Typography>}
+	  </Box>
 	);
       default:
-	throw new Error("Tried to make RequestFormField for unsupported input type");
-      //return null;
+        throw new Error("Tried to make RequestFormField for unsupported input type");
     }
   };
-
 
 export const FormComponent: React.FC<{
   fields: RequestInputType[];
@@ -193,7 +208,6 @@ export const FormComponent: React.FC<{
 
   // Handle input changes for non-overridden fields
   const handleInputChange = (fieldName: string) => (value: any) => {
-    console.log(`The value of field ${fieldName} was changed to ${value}`);
     setFormData(prevData => ({
       ...prevData,
       [fieldName]: value,
@@ -231,7 +245,6 @@ export const FormComponent: React.FC<{
 
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
-      console.error(validationErrors);
       setIsSubmitting(false);
       return;
     }
@@ -240,16 +253,13 @@ export const FormComponent: React.FC<{
     let data: any = {};
     fields.forEach(field => {
       const fieldValue = getOverriddenValue(field.field_name) || formData[field.field_name];
-      //if (fieldValue !== undefined) {
       if (fieldValue) {
         data[field.field_name] = fieldValue;
       }
     });
 
     try {
-      console.log(`Going to send request to ${finalUrl + endpoint}, having fields ${JSON.stringify(fields)}, with data ${JSON.stringify(data)}`);
       const response = await sendPostRequest(fields, data, finalUrl + endpoint);
-
       // Handle the response based on the status
       if (response.status === 'Success') {
         setSubmissionMessage('Form submitted successfully.');
@@ -260,7 +270,6 @@ export const FormComponent: React.FC<{
       }
     } catch (error) {
       setSubmissionMessage('Error submitting form.');
-      console.error(`Error ${error} happened while submission`);
       onResponse({ status: 'Error', value: error });
     } finally {
       setIsSubmitting(false);
@@ -268,25 +277,26 @@ export const FormComponent: React.FC<{
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <Box component="form" onSubmit={handleSubmit}>
       {/* Render URL input only if it's not overridden */}
       {!overrides.url && (
-        <div>
-          <label htmlFor="url">URL:</label>
-          <input
+        <Box mb={2}>
+          <TextField
+            label="URL"
             type="text"
-            id="url"
+            fullWidth
             value={url}
             onChange={handleUrlChange}
             required
+            error={!!errors.url}
+            helperText={errors.url}
           />
-          {errors.url && <span style={{ color: 'red' }}>{errors.url}</span>}
-        </div>
+        </Box>
       )}
 
       {/* Render fields that are not overridden */}
       {fields
-        .filter(field => !overrides[field.field_name]) // Skip overridden fields
+        .filter(field => !overrides[field.field_name])
         .map(field => (
           <RequestFormField
             key={field.field_name}
@@ -298,80 +308,21 @@ export const FormComponent: React.FC<{
           />
         ))}
 
-      <button type="submit" disabled={isSubmitting}>
+      <Button
+        type="submit"
+        variant="contained"
+        disabled={isSubmitting}
+        fullWidth
+      >
         {isSubmitting ? 'Submitting...' : 'Submit'}
-      </button>
-      {submissionMessage && <p>{submissionMessage}</p>}
-    </form>
+      </Button>
+      {submissionMessage && (
+        <Typography variant="body1" sx={{ mt: 2 }}>
+          {submissionMessage}
+        </Typography>
+      )}
+    </Box>
   );
 };
 
-// interface RequestObjectProps {
-//   baseBuilder: () => string;
-//   endpoint: string;
-//   requestFields: RequestInputType[];
-//   onSubmit?: (response: any) => void;
-// }
-
-// const RequestObject: React.FC<RequestObjectProps> = ({ baseBuilder, endpoint, requestFields, onSubmit }) => {
-//   const { control, handleSubmit } = useForm();
-
-//   const handleFormSubmit = async (data: any) => {
-//     const url = `${baseBuilder()}/${endpoint}`;
-//     const formData = new FormData();
-
-//     requestFields.forEach((field) => {
-//       if (field.type === RequestUnitType.Video && data[field.field_name]) {
-// 	formData.append(field.field_name, data[field.field_name]);
-//       } else if (data[field.field_name]) {
-// 	formData.append(field.field_name, data[field.field_name]);
-//       }
-//     });
-
-//     try {
-//       const response = await axios.post(url, formData, {
-// 	headers: { 'Content-Type': 'multipart/form-data' },
-//       });
-//       if (onSubmit) onSubmit(response.data);
-//     } catch (error) {
-//       console.error('Error submitting request:', error);
-//     }
-//   };
-
-//   return (
-//     <form onSubmit={handleSubmit(handleFormSubmit)}>
-// 	    <h2>Endpoint: {endpoint}</h2>
-// 	    {requestFields.map((field) => (
-// 	      <Controller
-// 		key={field.field_name}
-// 		name={field.field_name}
-// 		control={control}
-// 		defaultValue=""
-// 		render={({ field: controllerField }) => (
-// 		  <div>
-// 			    <label>{field.field_name}</label>
-// 			    {field.type === RequestUnitType.Video ? (
-// 			      <input
-// 				type="file"
-// 				accept="video/*"
-// 				onChange={(e) => controllerField.onChange(e.target.files?.[0])}
-// 			      />
-// 			    ) : (
-// 			      <input
-// 				type={field.type === RequestUnitType.Integer ? 'number' : 'text'}
-// 				{...controllerField}
-// 			      />
-// 			    )}
-// 		  </div>
-// 		)}
-// 	      />
-// 	    ))}
-// 	    <button type="submit">Send Request</button>
-//     </form>
-//   );
-// };
-
-// export default RequestObject;
-
-export default sendPostRequest; 
-
+export default sendPostRequest;
