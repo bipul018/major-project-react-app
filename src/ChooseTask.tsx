@@ -153,7 +153,7 @@ export const TaskListWithDropdown: React.FC<{ taskItems: Array<{ endpoint: strin
 	  
 	  <VideoComponent
             ref={videoComponentRef}
-            title="This is a double video example."
+  title="Source and Processed Videos"
             onVideo1Change={handleVideo1Change}
 	  />
 	  <button onClick={handleExchangeVideos}>Exchange Videos</button>
@@ -172,6 +172,7 @@ export interface VideoComponentProps {
   // Props can be added here later
   title: string,
   onVideo1Change?: (file: File | null) => Promise<void>,
+  height?: string | null;
 }
 
 export interface VideoComponentRef {
@@ -183,6 +184,9 @@ export interface VideoComponentRef {
 export const VideoComponent = forwardRef((props: VideoComponentProps, ref: Ref<VideoComponentRef>) => {
   const [videoSrc1, setVideoSrc1] = useState<string | null>(null);
   const [videoSrc2, setVideoSrc2] = useState<string | null>(null);
+
+  const videoRef1 = useRef<HTMLVideoElement>(null);
+  const videoRef2 = useRef<HTMLVideoElement>(null);
 
   const handleFileSelect1 = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -216,6 +220,28 @@ export const VideoComponent = forwardRef((props: VideoComponentProps, ref: Ref<V
     },
   }));
 
+  const handlePlayPause = () => {
+    const videos = [videoRef1.current, videoRef2.current];
+    const arePaused = videos.every(video => video ? video.paused : true);
+    
+    if (arePaused) {
+      videos.forEach(video => video && video.play());
+    } else {
+      videos.forEach(video => video && video.pause());
+    }
+  };
+
+  const handleReset = () => {
+    if (videoRef1.current) {
+      videoRef1.current.currentTime = 0;
+      videoRef1.current.pause();
+    }
+    if (videoRef2.current) {
+      videoRef2.current.currentTime = 0;
+      videoRef2.current.pause();
+    }
+  };
+
   //useEffect(() => {
   //  return () => {
   //    if (videoSrc1) URL.revokeObjectURL(videoSrc1);
@@ -224,11 +250,15 @@ export const VideoComponent = forwardRef((props: VideoComponentProps, ref: Ref<V
   //}, [videoSrc1, videoSrc2]);
 
   return (
-    <div>
+    <div style={{ height: props.height ?? 'auto' }}>
       <h2> {props.title} </h2>
+      <div>
+        <button onClick={handlePlayPause}>Play/Pause</button>
+        <button onClick={handleReset}>Reset</button>
+      </div>
       <div style={{ display: 'flex' }}>
-        <video controls style={{ width: '50%' }} src={videoSrc1??""} />
-        <video controls style={{ width: '50%' }} src={videoSrc2??""} />
+        <video controls ref={videoRef1} style={{ width: '50%' }} src={videoSrc1??""} />
+        <video controls ref={videoRef2} style={{ width: '50%' }} src={videoSrc2??""} />
       </div>
       <div>
         <input type="file" accept="video/*" onChange={handleFileSelect1} />
