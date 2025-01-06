@@ -51,6 +51,7 @@ export function sendPostRequest(
   // Send POST request with appropriate headers and body
   return fetch(url, {
     method: 'POST',
+    //method: hasFiles ? "POST":"GET",
     headers: hasFiles ? {} : { 'Content-Type': 'application/json' },
     body: hasFiles ? data : JSON.stringify(data),
   })
@@ -246,7 +247,7 @@ export const FormComponent: React.FC<{
     });
 
     try {
-      console.log(`Going to send request to ${finalUrl + endpoint}, having fields ${fields}, with data ${data}`);
+      console.log(`Going to send request to ${finalUrl + endpoint}, having fields ${JSON.stringify(fields)}, with data ${JSON.stringify(data)}`);
       const response = await sendPostRequest(fields, data, finalUrl + endpoint);
 
       // Handle the response based on the status
