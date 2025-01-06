@@ -1,8 +1,19 @@
-import React, { useState, useRef, forwardRef, Ref, useImperativeHandle } from 'react';
-import {sendPostRequest, FormComponent} from './RequestMaker.tsx';
-import {taskItems as gTaskItems, RequestInputType} from './taskItems.ts';
+import React, { useState, useRef, forwardRef, Ref, useImperativeHandle } from "react";
+import {
+  Box,
+  Typography,
+  Select,
+  MenuItem,
+  TextField,
+  Button,
+  Grid,
+} from "@mui/material";
+import { sendPostRequest, FormComponent } from "./RequestMaker.tsx";
+import { taskItems as gTaskItems, RequestInputType } from "./taskItems.ts";
 
-export const TaskListWithDropdown: React.FC<{ taskItems: Array<{ endpoint: string; request_fields: RequestInputType[] }> }> = ({ taskItems }) => {
+export const TaskListWithDropdown: React.FC<{
+  taskItems: Array<{ endpoint: string; request_fields: RequestInputType[] }>;
+}> = ({ taskItems }) => {
   const [selectedEndpoint, setSelectedEndpoint] = useState<string>(taskItems[0].endpoint);
   const [url, setUrl] = useState<string>("http://localhost:8080/");
   const videoComponentRef = useRef<any>(null);
@@ -10,10 +21,11 @@ export const TaskListWithDropdown: React.FC<{ taskItems: Array<{ endpoint: strin
   const handleVideo1Change = async (file: File | null) => {
     if (file) {
       const result = await sendPostRequest(
-	gTaskItems.find(it => it.endpoint == "task/save_video")?.request_fields as RequestInputType[],
-	{"video": file},
-	url + "task/save_video");
-      // TODO:: Does this url is always the uptodate thing or does it lag by the last state update ?
+	// TODO:: Does this url is always the uptodate thing or does it lag by the last state update ?
+        gTaskItems.find((it) => it.endpoint == "task/save_video")?.request_fields as RequestInputType[],
+        { video: file },
+        url + "task/save_video"
+      );
       handleTaskResponse(result);
     }
   };
@@ -25,43 +37,40 @@ export const TaskListWithDropdown: React.FC<{ taskItems: Array<{ endpoint: strin
       videoComponentRef.current.setVideo2(data.src1);
 
       if (data.src2) {
-        //handleVideo1Change(new File({fileName : data.src2}));
-	handleVideo1Change(await convertToFile(data.src2));
+        handleVideo1Change(await convertToFile(data.src2));
       }
     }
   };
 
   // TODO:: Instead of printing in console, print somewhere in HTML
-  const handleTaskResponse = (response: { status: 'Success' | 'Error'; value: any }) => {
-    if (response.status === 'Success') {
-      if (response.value && typeof response.value === 'object' && response.value.bytes) {
+  const handleTaskResponse = (response: { status: "Success" | "Error"; value: any }) => {
+    if (response.status === "Success") {
+      if (response.value && typeof response.value === "object" && response.value.bytes) {
         console.log(`Success: Bytes length is ${response.value.bytes.length}`);
       } else {
         console.log(`Success: ${response.value}`);
       }
       handleGetVideo();
-    } else if (response.status === 'Error') {
+    } else if (response.status === "Error") {
       console.error(`Error: ${response.value}`);
     }
   };
 
   // Convert Blob/URL to File object
-  const convertToFile = async (src: any, defaultName = 'video.mp4') => {
+  const convertToFile = async (src: any, defaultName = "video.mp4") => {
     try {
       // If src is already a File, return it
       if (src instanceof File) return src;
-
       // If src is a Blob URL
-      if (src.startsWith('blob:')) {
+      if (src.startsWith("blob:")) {
         const response = await fetch(src);
         const blob = await response.blob();
         return new File([blob], defaultName, { type: blob.type });
       }
-
       // If src is a base64 data URL
-      if (src.startsWith('data:')) {
-        const [header, data] = src.split(',');
-        const type = header.split(';')[0].split(':')[1];
+      if (src.startsWith("data:")) {
+        const [header, data] = src.split(",");
+        const type = header.split(";")[0].split(":")[1];
         const binary = atob(data);
         const array = new Uint8Array(binary.length);
         for (let i = 0; i < binary.length; i++) {
@@ -69,22 +78,21 @@ export const TaskListWithDropdown: React.FC<{ taskItems: Array<{ endpoint: strin
         }
         return new File([array], defaultName, { type });
       }
-
-      throw new Error('Unsupported source format');
+      throw new Error("Unsupported source format");
     } catch (error) {
-      console.error('Error converting to File:', error);
+      console.error("Error converting to File:", error);
       return null;
     }
   };
 
   const handleGetVideo = async () => {
     const result = await sendPostRequest(
-      gTaskItems.find(it => it.endpoint == "task/get_video")?.request_fields as RequestInputType[],
+      gTaskItems.find((it) => it.endpoint == "task/get_video")?.request_fields as RequestInputType[],
       {},
-      url + "task/get_video");
-    // TODO:: Does this url is always the uptodate thing or does it lag by the last state update ?
-    if (result.status === 'Success' && result.value.bytes) {
-
+      // TODO:: Does this url is always the uptodate thing or does it lag by the last state update ?
+      url + "task/get_video"
+    );
+    if (result.status === "Success" && result.value.bytes) {
       const data = result.value.bytes;
       const counteq = (data.match(/=+/g) || []).length;
       const sdata = data.replace(/=+$/, '');
@@ -102,145 +110,109 @@ export const TaskListWithDropdown: React.FC<{ taskItems: Array<{ endpoint: strin
     }
   };
 
-
-  const handleDropdownChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedEndpoint(e.target.value);
+  const handleDropdownChange = (e: React.ChangeEvent<{ value: unknown }>) => {
+    setSelectedEndpoint(e.target.value as string);
   };
 
   const selectedTask = taskItems.find((it) => it.endpoint === selectedEndpoint);
 
   return (
-    <div>
-      <h3>The request form field is:</h3>
-      <div>
-        <label htmlFor="task-dropdown">Select an endpoint: </label>
-        <select id="task-dropdown" onChange={handleDropdownChange} value={selectedEndpoint || ''}>
-          <option value="" disabled>
-            Choose an endpoint
-          </option>
-          {taskItems.map((it) => (
-            <option key={it.endpoint} value={it.endpoint}>
-              {it.endpoint}
-            </option>
-          ))}
-        </select>
-      </div>
+    <Box>
+      <Typography variant="h6" gutterBottom>
+        The request form field is:
+      </Typography>
+      <Grid container spacing={2}>
+        <Grid item xs={12} sm={6}>
+          <TextField
+            select
+            fullWidth
+            label="Select an endpoint"
+            value={selectedEndpoint || ""}
+            onChange={handleDropdownChange}
+          >
+            {taskItems.map((it) => (
+              <MenuItem key={it.endpoint} value={it.endpoint}>
+                {it.endpoint}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <TextField
+            fullWidth
+            label="URL"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+          />
+        </Grid>
+      </Grid>
 
-      <div>
-        <label>URL: </label>
-        <input
-          type="text"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-        />
-      </div>
-      
       {selectedTask && (
-        <div>
-          <h4>Endpoint: {selectedTask.endpoint}</h4>
-          <FormComponent endpoint={selectedTask.endpoint} fields={selectedTask.request_fields}
+        <Box mt={3}>
+          <Typography variant="h6" gutterBottom>
+            Endpoint: {selectedTask.endpoint}
+          </Typography>
+          <FormComponent
+            endpoint={selectedTask.endpoint}
+            fields={selectedTask.request_fields}
             onResponse={handleTaskResponse}
-	    overrides={{
+            overrides={{
               url: () => url,
               ...(selectedTask.request_fields
-                .filter((field) => field.type === 'video' && field.nullable)
+                .filter((field) => field.type === "video" && field.nullable)
                 .reduce((acc, field) => {
                   acc[field.field_name] = null;
                   return acc;
                 }, {} as Record<string, null>)),
             }}
-	  />
-	  
-	  <VideoComponent
+          />
+          <VideoComponent
             ref={videoComponentRef}
-  title="Source and Processed Videos"
+            title="Source and Processed Videos"
             onVideo1Change={handleVideo1Change}
-	  />
-	  <button onClick={handleExchangeVideos}>Exchange Videos</button>
-        </div>
+          />
+          <Button variant="contained" onClick={handleExchangeVideos} sx={{ mt: 2 }}>
+            Exchange Videos
+          </Button>
+        </Box>
       )}
-    </div>
+    </Box>
   );
 };
 
 export default TaskListWithDropdown;
 
-//import React, { useState, useRef, forwardRef, Ref, useImperativeHandle, useEffect } from 'react';
-//import React, { useState, forwardRef, Ref, useImperativeHandle, useEffect } from 'react';
-
 export interface VideoComponentProps {
-  // Props can be added here later
-  title: string,
-  onVideo1Change?: (file: File | null) => Promise<void>,
+  title: string;
+  onVideo1Change?: (file: File | null) => Promise<void>;
   height?: string | null;
 }
 
 export interface VideoComponentRef {
   getVideoData: () => { src1: string | null; src2: string | null };
-  setVideo1: (data_url: string|null) => void;
-  setVideo2: (data_url: string|null) => void;
+  setVideo1: (data_url: string | null) => void;
+  setVideo2: (data_url: string | null) => void;
 }
 
-export const VideoComponent = forwardRef((props: VideoComponentProps, ref: Ref<VideoComponentRef>) => {
-  const [videoSrc1, setVideoSrc1] = useState<string | null>(null);
-  const [videoSrc2, setVideoSrc2] = useState<string | null>(null);
+export const VideoComponent = forwardRef(
+  (props: VideoComponentProps, ref: Ref<VideoComponentRef>) => {
+    const [videoSrc1, setVideoSrc1] = useState<string | null>(null);
+    const [videoSrc2, setVideoSrc2] = useState<string | null>(null);
 
-  const videoRef1 = useRef<HTMLVideoElement>(null);
-  const videoRef2 = useRef<HTMLVideoElement>(null);
-
-  const handleFileSelect1 = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if(props.onVideo1Change){
-	props.onVideo1Change(file);
-      }
-      setVideoSrc1(URL.createObjectURL(file));
-    }
-  };
-
-  const handleFileSelect2 = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setVideoSrc2(URL.createObjectURL(file));
-    }
-  };
-
-  useImperativeHandle(ref, () => ({
-    getVideoData: () => {
-      return {
-        src1: videoSrc1,
-        src2: videoSrc2,
-      };
-    },
-    setVideo1: (data_url: string|null) => {
-      setVideoSrc1(data_url);
-    },
-    setVideo2: (data_url: string|null) => {
-      setVideoSrc2(data_url);
-    },
-  }));
-
-  const handlePlayPause = () => {
-    const videos = [videoRef1.current, videoRef2.current];
-    const arePaused = videos.every(video => video ? video.paused : true);
+    const videoRef1 = useRef<HTMLVideoElement>(null);
+    const videoRef2 = useRef<HTMLVideoElement>(null);
     
-    if (arePaused) {
-      videos.forEach(video => video && video.play());
-    } else {
-      videos.forEach(video => video && video.pause());
-    }
-  };
-
-  const handleReset = () => {
-    if (videoRef1.current) {
-      videoRef1.current.currentTime = 0;
-      videoRef1.current.pause();
-    }
-    if (videoRef2.current) {
-      videoRef2.current.currentTime = 0;
-      videoRef2.current.pause();
-    }
-  };
+    const fileInputRef1 = useRef<HTMLInputElement>(null);
+    const fileInputRef2 = useRef<HTMLInputElement>(null);
+    
+    const handleFileSelect1 = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        if (props.onVideo1Change) {
+          props.onVideo1Change(file);
+        }
+        setVideoSrc1(URL.createObjectURL(file));
+      }
 
   //useEffect(() => {
   //  return () => {
@@ -248,25 +220,114 @@ export const VideoComponent = forwardRef((props: VideoComponentProps, ref: Ref<V
   //    if (videoSrc2) URL.revokeObjectURL(videoSrc2);
   //  };
   //}, [videoSrc1, videoSrc2]);
+    };
 
-  return (
-    <div style={{ height: props.height ?? 'auto' }}>
-      <h2> {props.title} </h2>
-      <div>
-        <button onClick={handlePlayPause}>Play/Pause</button>
-        <button onClick={handleReset}>Reset</button>
-      </div>
-      <div style={{ display: 'flex' }}>
-        <video controls ref={videoRef1} style={{ width: '50%' }} src={videoSrc1??""} />
-        <video controls ref={videoRef2} style={{ width: '50%' }} src={videoSrc2??""} />
-      </div>
-      <div>
-        <input type="file" accept="video/*" onChange={handleFileSelect1} />
-        <input type="file" accept="video/*" onChange={handleFileSelect2} />
-      </div>
-    </div>
-  );
-});
+    const handleFileSelect2 = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        setVideoSrc2(URL.createObjectURL(file));
+      }
+    };
 
+    useImperativeHandle(ref, () => ({
+      getVideoData: () => {
+        return {
+          src1: videoSrc1,
+          src2: videoSrc2,
+        };
+      },
+      setVideo1: (data_url: string | null) => {
+        setVideoSrc1(data_url);
+      },
+      setVideo2: (data_url: string | null) => {
+        setVideoSrc2(data_url);
+      },
+    }));
 
+    const handlePlayPause = () => {
+      const videos = [videoRef1.current, videoRef2.current];
+      const arePaused = videos.every((video) => (video ? video.paused : true));
 
+      if (arePaused) {
+        videos.forEach((video) => video && video.play());
+      } else {
+        videos.forEach((video) => video && video.pause());
+      }
+    };
+
+    const handleReset = () => {
+      if (videoRef1.current) {
+        videoRef1.current.currentTime = 0;
+        videoRef1.current.pause();
+      }
+      if (videoRef2.current) {
+        videoRef2.current.currentTime = 0;
+        videoRef2.current.pause();
+      }
+    };
+
+    return (
+      <Box sx={{ height: props.height ?? "auto" }}>
+        <Typography variant="h6" gutterBottom>
+          {props.title}
+        </Typography>
+        <Box mb={2}>
+          <Button variant="contained" onClick={handlePlayPause} sx={{ mr: 2 }}>
+            Play/Pause
+          </Button>
+          <Button variant="contained" onClick={handleReset}>
+            Reset
+          </Button>
+        </Box>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={6}>
+            <video controls ref={videoRef1} style={{ width: "100%" }} src={videoSrc1 ?? ""} />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <video controls ref={videoRef2} style={{ width: "100%" }} src={videoSrc2 ?? ""} />
+          </Grid>
+        </Grid>
+        <Box mt={2}>
+	  {/* Styled File Input for Video 1 */}
+          <input
+            type="file"
+            accept="video/*"
+            onChange={handleFileSelect1}
+            ref={fileInputRef1}
+            style={{ display: "none" }}
+          />
+          <Button
+            variant="outlined"
+            onClick={ () => {
+	      if (fileInputRef1.current) {
+		fileInputRef1.current.click();
+	      }
+	    }}
+            sx={{ mr: 2 }}
+          >
+            Upload Video 1
+          </Button>
+
+          {/* Styled File Input for Video 2 */}
+          <input
+            type="file"
+            accept="video/*"
+            onChange={handleFileSelect2}
+            ref={fileInputRef2}
+            style={{ display: "none" }}
+          />
+          <Button
+            variant="outlined"
+            onClick={() => {
+	      if (fileInputRef2.current) {
+		fileInputRef2.current.click();
+	      }
+	    }}
+          >
+            Upload Video 2
+          </Button>
+        </Box>
+      </Box>
+    );
+  }
+); 
