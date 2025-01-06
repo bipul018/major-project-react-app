@@ -1,8 +1,7 @@
 //import reactLogo from './assets/react.svg'
 //import viteLogo from '/vite.svg'
-import './App.css'
-
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { ThemeProvider, createTheme, CssBaseline, Container, Box } from '@mui/material';
+import './App.css';
 
 const theme = createTheme({
   palette: {
@@ -31,19 +30,22 @@ import Demo from "./components/Demo";
 const App: React.FC = () => {
   return (
     <ThemeProvider theme={theme}>
+      <CssBaseline /> {/* Reset browser styles */}
       <Header />
-      <main>
-	  <Home />
-        <ProjectDetails />
-	  <Progress />
-	  <Team />
-        <Resources />
-        <Contact />
-	  <Demo />
-      </main>
+      <Container component="main" maxWidth="lg">
+        <Box sx={{ my: 4 }}> {/* Add spacing around the content */}
+          <Home />
+          <ProjectDetails />
+          <Progress />
+          <Team />
+          <Resources />
+          <Contact />
+          <Demo />
+        </Box>
+      </Container>
       <Footer />
     </ThemeProvider>
-  )
-}
+  );
+};
 
-export default App
+export default App;

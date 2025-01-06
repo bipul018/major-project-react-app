@@ -1,5 +1,6 @@
 // src/components/Team.tsx
 import React from "react";
+import { Box, Typography, Grid, Card, CardContent } from "@mui/material";
 
 interface TeamMember {
   name: string;
@@ -11,48 +12,49 @@ const teamMembers: TeamMember[] = [
   {
     name: "Alice Johnson",
     role: "Frontend Developer",
-    responsibilities: "Developing the React-based UI and ensuring responsiveness."
+    responsibilities: "Developing the React-based UI and ensuring responsiveness.",
   },
   {
     name: "Bob Smith",
     role: "Backend Developer",
-    responsibilities: "Designing the server-side logic and integrating APIs."
+    responsibilities: "Designing the server-side logic and integrating APIs.",
   },
   {
     name: "Charlie Brown",
     role: "Project Manager",
-    responsibilities: "Overseeing project progress and coordinating tasks."
+    responsibilities: "Overseeing project progress and coordinating tasks.",
   },
 ];
 
 const Team: React.FC = () => {
   return (
-    <div style={{ padding: "2rem", fontFamily: "Arial, sans-serif" }}>
-      <h2 id="team">Meet Our Team</h2>
-      <p>Our project is driven by a dedicated team of three members, each bringing unique skills to the table:</p>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}>
+    <Box sx={{ padding: "2rem" }}>
+      <Typography variant="h4" component="h2" gutterBottom id="team">
+        Meet Our Team
+      </Typography>
+      <Typography variant="body1" paragraph>
+        Our project is driven by a dedicated team of three members, each bringing unique skills to the table:
+      </Typography>
+      <Grid container spacing={3}>
         {teamMembers.map((member, index) => (
-          <div
-            key={index}
-            style={{
-              border: "1px solid #ccc",
-              borderRadius: "8px",
-              padding: "1rem",
-              width: "300px",
-              boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-            }}
-          >
-            <h3>{member.name}</h3>
-            <p>
-              <strong>Role:</strong> {member.role}
-            </p>
-            <p>
-              <strong>Responsibilities:</strong> {member.responsibilities}
-            </p>
-          </div>
+          <Grid item key={index} xs={12} sm={6} md={4}>
+            <Card sx={{ height: "100%" }}>
+              <CardContent>
+                <Typography variant="h6" component="h3" gutterBottom>
+                  {member.name}
+                </Typography>
+                <Typography variant="body1" paragraph>
+                  <strong>Role:</strong> {member.role}
+                </Typography>
+                <Typography variant="body1">
+                  <strong>Responsibilities:</strong> {member.responsibilities}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
         ))}
-      </div>
-    </div>
+      </Grid>
+    </Box>
   );
 };
 

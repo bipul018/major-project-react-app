@@ -1,22 +1,26 @@
 // src/components/Footer.tsx
 import React from "react";
+import { Box, Container, Typography } from "@mui/material";
 
 const Footer: React.FC = () => {
   return (
-    <footer
-      style={{
+    <Box
+      component="footer"
+      sx={{
         backgroundColor: "#f1f1f1",
-        padding: "1rem",
-        textAlign: "center",
-        marginTop: "2rem",
-        fontSize: "0.9rem",
+        py: 3, // Padding on the y-axis
+        mt: 4, // Margin top
       }}
     >
-      <p>&copy; {new Date().getFullYear()} Project Status Website. All rights reserved.</p>
-      <p>
-        Made by Team VisionAI. Supervised by Project Supervisors and Coordinators.
-      </p>
-    </footer>
+      <Container maxWidth="lg">
+        <Typography variant="body2" color="textSecondary" align="center">
+          &copy; {new Date().getFullYear()} Project Status Website. All rights reserved.
+        </Typography>
+        <Typography variant="body2" color="textSecondary" align="center">
+          Made by Team VisionAI. Supervised by Project Supervisors and Coordinators.
+        </Typography>
+      </Container>
+    </Box>
   );
 };
 

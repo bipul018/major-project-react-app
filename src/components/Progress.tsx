@@ -1,5 +1,6 @@
 // src/components/Progress.tsx
 import React from "react";
+import { Box, Typography, Card, CardContent, Chip } from "@mui/material";
 
 interface Milestone {
   title: string;
@@ -43,49 +44,45 @@ const milestones: Milestone[] = [
 
 const Progress: React.FC = () => {
   return (
-    <div style={{ padding: "2rem", fontFamily: "Arial, sans-serif" }}>
-      <h2 id="progress">Project Progress</h2>
-      <p>
-        Here is an overview of the project milestones, their descriptions, and
-        their current status:
-      </p>
-      <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+    <Box sx={{ padding: "2rem" }}>
+      <Typography variant="h4" component="h2" gutterBottom id="progress">
+        Project Progress
+      </Typography>
+      <Typography variant="body1" paragraph>
+        Here is an overview of the project milestones, their descriptions, and their current status:
+      </Typography>
+      <Box sx={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
         {milestones.map((milestone, index) => (
-          <div
-            key={index}
-            style={{
-              border: "1px solid #ccc",
-              borderRadius: "8px",
-              padding: "1rem",
-              boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-            }}
-          >
-            <h3>{milestone.title}</h3>
-            <p>
-              <strong>Description:</strong> {milestone.description}
-            </p>
-            <p>
-              <strong>Status:</strong>{" "}
-              <span
-                style={{
-                  color:
+          <Card key={index} sx={{ borderRadius: "8px", boxShadow: 3 }}>
+            <CardContent>
+              <Typography variant="h6" component="h3" gutterBottom>
+                {milestone.title}
+              </Typography>
+              <Typography variant="body1" paragraph>
+                <strong>Description:</strong> {milestone.description}
+              </Typography>
+              <Typography variant="body1" paragraph>
+                <strong>Status:</strong>{" "}
+                <Chip
+                  label={milestone.status}
+                  color={
                     milestone.status === "Completed"
-                      ? "green"
+                      ? "success"
                       : milestone.status === "In Progress"
-                      ? "orange"
-                      : "red",
-                }}
-              >
-                {milestone.status}
-              </span>
-            </p>
-            <p>
-              <strong>Date:</strong> {milestone.date}
-            </p>
-          </div>
+                      ? "warning"
+                      : "error"
+                  }
+                  size="small"
+                />
+              </Typography>
+              <Typography variant="body1">
+                <strong>Date:</strong> {milestone.date}
+              </Typography>
+            </CardContent>
+          </Card>
         ))}
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 };
 

@@ -1,54 +1,59 @@
 // src/components/Resources.tsx
 import React from "react";
+import { Box, Typography, List, ListItem, Link } from "@mui/material";
 
 const Resources: React.FC = () => {
   return (
-    <div style={{ padding: "2rem", fontFamily: "Arial, sans-serif" }}>
-      <h2 id="resources">Resources</h2>
-      <p>Here are some resources and references related to our project:</p>
-      <ul>
-        <li>
-          <a
+    <Box sx={{ padding: "2rem" }}>
+      <Typography variant="h4" component="h2" gutterBottom id="resources">
+        Resources
+      </Typography>
+      <Typography variant="body1" paragraph>
+        Here are some resources and references related to our project:
+      </Typography>
+      <List>
+        <ListItem>
+          <Link
             href="https://reactjs.org/"
             target="_blank"
             rel="noopener noreferrer"
-            style={{ color: "#007BFF", textDecoration: "none" }}
+            color="primary"
           >
             React Documentation
-          </a>
-        </li>
-        <li>
-          <a
+          </Link>
+        </ListItem>
+        <ListItem>
+          <Link
             href="https://www.typescriptlang.org/"
             target="_blank"
             rel="noopener noreferrer"
-            style={{ color: "#007BFF", textDecoration: "none" }}
+            color="primary"
           >
             TypeScript Documentation
-          </a>
-        </li>
-        <li>
-          <a
+          </Link>
+        </ListItem>
+        <ListItem>
+          <Link
             href="https://opencv.org/"
             target="_blank"
             rel="noopener noreferrer"
-            style={{ color: "#007BFF", textDecoration: "none" }}
+            color="primary"
           >
             OpenCV Library
-          </a>
-        </li>
-        <li>
-          <a
+          </Link>
+        </ListItem>
+        <ListItem>
+          <Link
             href="https://github.com/your-team/project-repo"
             target="_blank"
             rel="noopener noreferrer"
-            style={{ color: "#007BFF", textDecoration: "none" }}
+            color="primary"
           >
             Project GitHub Repository
-          </a>
-        </li>
-      </ul>
-    </div>
+          </Link>
+        </ListItem>
+      </List>
+    </Box>
   );
 };
 

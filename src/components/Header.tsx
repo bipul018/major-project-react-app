@@ -1,20 +1,37 @@
 
 // src/components/Header.tsx
 import React from "react";
+import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
 
 const Header: React.FC = () => {
   return (
-    <header style={{ backgroundColor: "#282c34", padding: "1rem", color: "white" }}>
-      <h1>Project Status Website</h1>
-      <nav>
-        <a href="#home" style={{ margin: "0 1rem", color: "white", textDecoration: "none" }}>Home</a>
-        <a href="#details" style={{ margin: "0 1rem", color: "white", textDecoration: "none" }}>Project Details</a>
-        <a href="#team" style={{ margin: "0 1rem", color: "white", textDecoration: "none" }}>Team</a>
-        <a href="#progress" style={{ margin: "0 1rem", color: "white", textDecoration: "none" }}>Progress</a>
-        <a href="#resources" style={{ margin: "0 1rem", color: "white", textDecoration: "none" }}>Resources</a>
-        <a href="#contact" style={{ margin: "0 1rem", color: "white", textDecoration: "none" }}>Contact</a>
-      </nav>
-    </header>
+    <AppBar position="static">
+      <Toolbar>
+        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          Project Status Website
+        </Typography>
+        <Box>
+          <Button color="inherit" href="#home">
+            Home
+          </Button>
+          <Button color="inherit" href="#details">
+            Project Details
+          </Button>
+          <Button color="inherit" href="#team">
+            Team
+          </Button>
+          <Button color="inherit" href="#progress">
+            Progress
+          </Button>
+          <Button color="inherit" href="#resources">
+            Resources
+          </Button>
+          <Button color="inherit" href="#contact">
+            Contact
+          </Button>
+        </Box>
+      </Toolbar>
+    </AppBar>
   );
 };
 

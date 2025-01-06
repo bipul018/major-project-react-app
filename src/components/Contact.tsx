@@ -1,31 +1,42 @@
 // src/components/Contact.tsx
 import React from "react";
+import { Box, Typography, List, ListItem, Link } from "@mui/material";
 
 const Contact: React.FC = () => {
   return (
-    <div style={{ padding: "2rem", fontFamily: "Arial, sans-serif" }}>
-      <h2 id="contact">Contact Us</h2>
-      <p>If you have any questions or would like to learn more about our project, feel free to reach out:</p>
-      <ul>
-        <li>
-          <strong>Email:</strong> team.visionai@example.com
-        </li>
-        <li>
-          <strong>Phone:</strong> +123 456 7890
-        </li>
-        <li>
-          <strong>GitHub Issues:</strong>{" "}
-          <a
-            href="https://github.com/your-team/project-repo/issues"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: "#007BFF", textDecoration: "none" }}
-          >
-            Report an Issue
-          </a>
-        </li>
-      </ul>
-    </div>
+    <Box sx={{ padding: "2rem" }}>
+      <Typography variant="h4" component="h2" gutterBottom id="contact">
+        Contact Us
+      </Typography>
+      <Typography variant="body1" paragraph>
+        If you have any questions or would like to learn more about our project, feel free to reach out:
+      </Typography>
+      <List>
+        <ListItem>
+          <Typography variant="body1">
+            <strong>Email:</strong> team.visionai@example.com
+          </Typography>
+        </ListItem>
+        <ListItem>
+          <Typography variant="body1">
+            <strong>Phone:</strong> +123 456 7890
+          </Typography>
+        </ListItem>
+        <ListItem>
+          <Typography variant="body1">
+            <strong>GitHub Issues:</strong>{" "}
+            <Link
+              href="https://github.com/your-team/project-repo/issues"
+              target="_blank"
+              rel="noopener noreferrer"
+              color="primary"
+            >
+              Report an Issue
+            </Link>
+          </Typography>
+        </ListItem>
+      </List>
+    </Box>
   );
 };
 
