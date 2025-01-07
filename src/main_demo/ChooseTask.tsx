@@ -2,11 +2,19 @@ import React, { useState, useRef, forwardRef, Ref, useImperativeHandle } from "r
 import {
   Box,
   Typography,
-  Select,
   MenuItem,
   TextField,
   Button,
   Grid,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  List,
+  ListItem,
 } from "@mui/material";
 import { sendPostRequest, FormComponent } from "./RequestMaker.tsx";
 import { taskItems as gTaskItems, RequestInputType } from "./taskItems.ts";
@@ -17,6 +25,64 @@ export const TaskListWithDropdown: React.FC<{
   const [selectedEndpoint, setSelectedEndpoint] = useState<string>(taskItems[0].endpoint);
   const [url, setUrl] = useState<string>("http://localhost:8080/");
   const videoComponentRef = useRef<any>(null);
+
+  const [responseDetails, setResponseDetails] = useState<{
+    type: "string" | "list" | "map" | "none";
+    data: any;
+  }>({ type: "none", data: null });
+  const renderResponseDetails = () => {
+    switch (responseDetails.type) {
+      case "string":
+	return (
+          <Typography variant="body1" sx={{ mt: 2 }}>
+            <strong>Response:</strong> {responseDetails.data}
+          </Typography>
+	);
+      case "list":
+	return (
+          <Box sx={{ mt: 2 }}>
+            <Typography variant="body1" gutterBottom>
+              <strong>Response:</strong>
+            </Typography>
+            <List>
+              {responseDetails.data.map((item: any, index: number) => (
+		<ListItem key={index}>{item}</ListItem>
+              ))}
+            </List>
+          </Box>
+	);
+      case "map":
+	return (
+          <Box sx={{ mt: 2 }}>
+            <Typography variant="body1" gutterBottom>
+              <strong>Response:</strong>
+            </Typography>
+            <TableContainer component={Paper}>
+              <Table>
+		<TableHead>
+                  <TableRow>
+                    <TableCell>Key</TableCell>
+                    <TableCell>Value</TableCell>
+                  </TableRow>
+		</TableHead>
+		<TableBody>
+                  {Object.entries(responseDetails.data).map(([key, value]) => (
+                    <TableRow key={key}>
+                      <TableCell>{key}</TableCell>
+                      <TableCell>{String(value)}</TableCell>
+                    </TableRow>
+                  ))}
+		</TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
+	);
+      case "none":
+      default:
+	return null;
+    }
+  };
+
 
   const handleVideo1Change = async (file: File | null) => {
     if (file) {
@@ -42,16 +108,36 @@ export const TaskListWithDropdown: React.FC<{
     }
   };
 
-  // TODO:: Instead of printing in console, print somewhere in HTML
   const handleTaskResponse = (response: { status: "Success" | "Error"; value: any }) => {
     if (response.status === "Success") {
       if (response.value && typeof response.value === "object" && response.value.bytes) {
-        console.log(`Success: Bytes length is ${response.value.bytes.length}`);
+	console.log(`Success: Bytes length is ${response.value.bytes.length}`);
+	// TODO:: Remove this redundant code
+	const data = response.value.bytes;
+
+	const videoUrl = `data:${response.value.type};base64,${data}`;
+	console.log(`The video url is : ${videoUrl}`);
+	if (videoComponentRef.current) {
+          videoComponentRef.current.setVideo2(videoUrl);
+	}
       } else {
-        console.log(`Success: ${response.value}`);
+	// Determine the type of response value
+	if (typeof response.value === "string") {
+          setResponseDetails({ type: "string", data: response.value });
+	} else if (Array.isArray(response.value)) {
+          setResponseDetails({ type: "list", data: response.value });
+	} else if (typeof response.value === "object") {
+	  // TODO:: Detect cases where some typed value was still returned
+          setResponseDetails({ type: "map", data: response.value });
+	} else {
+          setResponseDetails({ type: "none", data: null });
+	}
+	
+	handleGetVideo();
+	console.log(`Success: ${response.value}`);
       }
-      handleGetVideo();
     } else if (response.status === "Error") {
+      setResponseDetails({ type: "none", data: null });
       console.error(`Error: ${response.value}`);
     }
   };
@@ -86,23 +172,23 @@ export const TaskListWithDropdown: React.FC<{
   };
 
   const handleGetVideo = async () => {
-    const result = await sendPostRequest(
+    const response = await sendPostRequest(
       gTaskItems.find((it) => it.endpoint == "task/get_video")?.request_fields as RequestInputType[],
       {},
       // TODO:: Does this url is always the uptodate thing or does it lag by the last state update ?
       url + "task/get_video"
     );
-    if (result.status === "Success" && result.value.bytes) {
-      const data = result.value.bytes;
+    if (response.status === "Success" && response.value.bytes) {
+      const data = response.value.bytes;
       const counteq = (data.match(/=+/g) || []).length;
       const sdata = data.replace(/=+$/, '');
 
       console.log(`The video had ${counteq} = at end`);
-      //const videoBytes = atob(result.value.bytes);
-      //const videoBlob = new Blob([new Uint8Array(videoBytes.length).map((_, i) => videoBytes.charCodeAt(i))], { type: result.value.type});
+      //const videoBytes = atob(response.value.bytes);
+      //const videoBlob = new Blob([new Uint8Array(videoBytes.length).map((_, i) => videoBytes.charCodeAt(i))], { type: response.value.type});
       //const videoUrl = URL.createObjectURL(videoBlob);
-      const videoUrl = `data:${result.value.type};base64,${sdata}`;
-      //const videoUrl = `data:${result.value.type};base64,${data}`;
+      //const videoUrl = `data:${response.value.type};base64,${sdata}`;
+      const videoUrl = `data:${response.value.type};base64,${data}`;
       console.log(`The video url is : ${videoUrl}`);
       if (videoComponentRef.current) {
         videoComponentRef.current.setVideo2(videoUrl);
@@ -166,6 +252,7 @@ export const TaskListWithDropdown: React.FC<{
                 }, {} as Record<string, null>)),
             }}
           />
+	  {renderResponseDetails()}
           <VideoComponent
             ref={videoComponentRef}
             title="Source and Processed Videos"
