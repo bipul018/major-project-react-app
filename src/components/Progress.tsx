@@ -14,31 +14,56 @@ const milestones: Milestone[] = [
     title: "Project Proposal",
     description: "Submitted and approved by the supervisors.",
     status: "Completed",
-    date: "2024-09-01",
+    //date: "2024-09-01",
   },
   {
     title: "Mid-Progress Defence",
     description: "Presented the project's current progress to the panel.",
     status: "Completed",
-    date: "2024-12-01",
+    //date: "2024-12-01",
+  },
+  {
+    title: "Development of RGB Stream-Based Models",
+    description: "Implemented models integrating ResNet and VGG16 architectures with LSTM and BiLSTM setups. Enhanced model training with data augmentation techniques to improve performance and generalizability across varied yoga poses.",
+    status: "Completed",
+  },
+  {
+    title: "Accuracy and Validation with STSAE-GCN",
+    description: "Tested STSAE-GCN for yoga pose recognition, achieving promising accuracy metrics. Conducted cross-fold validation to ensure model robustness, supported by extensive data augmentation efforts.",
+    status: "Completed",
+  },
+  {
+    title: "Exploration of Sapiens, VIBE, and SMPLer-X for 3D Inference",
+    description: "Investigated Sapiens, VIBE, and SMPLer-X for inferring 3D human models. Highlighted potential use cases such as visualizing biomechanical features and presenting user pose corrections via realistic 3D models instead of standard video overlays.",
+    status: "Completed",
+  },
+  {
+    title: "Transition to React Web Development and SMPLer-X Integration",
+    description: "Shifted from a Flutter-based app to a React-based web interface for better compatibility with SMPLer-X. Overcame integration challenges to ensure seamless 3D model rendering for yoga pose feedback.",
+    status: "In Progress",
+  },
+  {
+    title: "Statistical and Literature-Based Coaching System",
+    description: "Focused on literature review for developing a coaching mechanism. Explored verbal communication strategies and existing research to align the system's scope with evidence-based feedback.",
+    status: "In Progress",
   },
   {
     title: "Frontend Development",
     description: "Building the React frontend with TypeScript.",
     status: "In Progress",
-    date: "2025-01-15 (expected)",
+    //date: "2025-01-15 (expected)",
   },
   {
     title: "Backend Development",
     description: "Integrating computer vision algorithms and APIs.",
-    status: "Pending",
-    date: "2025-02-15 (expected)",
+    status: "In Progress",
+    //date: "2025-02-15 (expected)",
   },
   {
     title: "Final Submission",
     description: "Submission of the complete project.",
     status: "Pending",
-    date: "2025-05-01 (expected)",
+    //date: "2025-05-01 (expected)",
   },
 ];
 
@@ -75,9 +100,11 @@ const Progress: React.FC = () => {
                   size="small"
                 />
               </Typography>
+	      {/*
               <Typography variant="body1">
-                <strong>Date:</strong> {milestone.date}
-              </Typography>
+                <strong>Date:</strong> {milestone.//date}
+		  </Typography>
+		*/}
             </CardContent>
           </Card>
         ))}

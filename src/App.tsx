@@ -22,8 +22,8 @@ import Footer from "./components/Footer";
 import Team from "./components/Team";
 import Home from "./components/Home";
 import ProjectDetails from "./components/ProjectDetails";
-import Resources from "./components/Resources";
-import Contact from "./components/Contact";
+//import Resources from "./components/Resources";
+//import Contact from "./components/Contact";
 import Progress from "./components/Progress";
 import Demo from "./components/Demo";
 
@@ -38,8 +38,8 @@ const App: React.FC = () => {
           <ProjectDetails />
           <Progress />
           <Team />
-          <Resources />
-          <Contact />
+          {/*<Resources />*/}
+          {/*<Contact />*/}
           <Demo />
         </Box>
       </Container>

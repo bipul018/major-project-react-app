@@ -42,7 +42,7 @@ const Resources: React.FC = () => {
             OpenCV Library
           </Link>
         </ListItem>
-        <ListItem>
+        {/*<ListItem>
           <Link
             href="https://github.com/your-team/project-repo"
             target="_blank"
@@ -51,7 +51,7 @@ const Resources: React.FC = () => {
           >
             Project GitHub Repository
           </Link>
-        </ListItem>
+        </ListItem>*/}
       </List>
     </Box>
   );

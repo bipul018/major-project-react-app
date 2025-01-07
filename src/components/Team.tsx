@@ -10,19 +10,22 @@ interface TeamMember {
 
 const teamMembers: TeamMember[] = [
   {
-    name: "Alice Johnson",
-    role: "Frontend Developer",
-    responsibilities: "Developing the React-based UI and ensuring responsiveness.",
+    name: "Aagab Bhattarai",
+    roll: "PUL077BCT001",
+    //role: "Frontend Developer",
+    //responsibilities: "Developing the React-based UI and ensuring responsiveness.",
   },
   {
-    name: "Bob Smith",
-    role: "Backend Developer",
-    responsibilities: "Designing the server-side logic and integrating APIs.",
+    name: "Aayusha Odari",
+    roll: "PUL077BCT001",
+    //role: "Backend Developer",
+    //responsibilities: "Designing the server-side logic and integrating APIs.",
   },
   {
-    name: "Charlie Brown",
-    role: "Project Manager",
-    responsibilities: "Overseeing project progress and coordinating tasks.",
+    name: "Bipul Neupane",
+    roll: "PUL077BCT001",
+    //role: "Project Manager",
+    //responsibilities: "Overseeing project progress and coordinating tasks.",
   },
 ];
 
@@ -44,11 +47,16 @@ const Team: React.FC = () => {
                   {member.name}
                 </Typography>
                 <Typography variant="body1" paragraph>
+                  <strong>Roll Number:</strong> {member.roll}
+                </Typography>
+		{/*
+                <Typography variant="body1" paragraph>
                   <strong>Role:</strong> {member.role}
                 </Typography>
                 <Typography variant="body1">
                   <strong>Responsibilities:</strong> {member.responsibilities}
-                </Typography>
+              </Typography>
+		  */}
               </CardContent>
             </Card>
           </Grid>

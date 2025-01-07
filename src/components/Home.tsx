@@ -8,29 +8,29 @@ const Home: React.FC = () => {
       {/* Project Introduction */}
       <Box id="home" sx={{ marginBottom: "2rem" }}>
         <Typography variant="h4" component="h2" gutterBottom>
-          Welcome to the Project Status Website
+	  DL Based Automated Yoga Assistance Using CNN and LSTM
         </Typography>
         <Typography variant="body1" paragraph>
-          Our project focuses on leveraging cutting-edge computer vision techniques to solve real-world challenges. Hosted with a React-based frontend, it highlights progress, technical details, and contributions from the team.
+	  This project leverages AI and deep learning techniques to guide and improve yoga practice. Using advanced computer vision algorithms, it offers real-time posture feedback and suggestions for improvement.
         </Typography>
       </Box>
 
       {/* Supervisors and Coordinators */}
       <Box id="supervisors" sx={{ marginBottom: "2rem" }}>
         <Typography variant="h5" component="h3" gutterBottom>
-          Supervisors and Coordinators
+          Supervisors {/*and Coordinators*/}
         </Typography>
         <List>
           <ListItem>
             <Typography variant="body1">
-              <strong>Supervisors:</strong> Dr. Jane Doe, Prof. John Smith
+              <strong>Supervisor:</strong> Dr. Ganesh Gautam
             </Typography>
           </ListItem>
-          <ListItem>
+          {/*<ListItem>
             <Typography variant="body1">
-              <strong>Coordinators:</strong> Ms. Alice Green, Mr. Bob Brown
+              <strong>Coordinators:</strong> 
             </Typography>
-          </ListItem>
+          </ListItem>*/}
         </List>
       </Box>
 
@@ -55,12 +55,22 @@ const Home: React.FC = () => {
           </ListItem>
           <ListItem>
             <Link
-              href="https://github.com/your-team/project-repo"
+              href="https://github.com/bipul018/a-pythonic-web-server"
               target="_blank"
               rel="noopener noreferrer"
               color="primary"
             >
-              GitHub Repository
+              GitHub Repository to the Backend
+            </Link>
+          </ListItem>
+          <ListItem>
+            <Link
+              href="https://github.com/bipul018/major-project-react-app"
+              target="_blank"
+              rel="noopener noreferrer"
+              color="primary"
+            >
+              GitHub Repository to the Frontend
             </Link>
           </ListItem>
           <ListItem>

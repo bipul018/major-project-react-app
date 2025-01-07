@@ -14,7 +14,20 @@ const ProjectDetails: React.FC = () => {
           Project Overview
         </Typography>
         <Typography variant="body1" paragraph>
-          Our project leverages cutting-edge computer vision techniques to solve [specific problem]. It involves designing a frontend in React with TypeScript and integrating it with backend systems for seamless data processing.
+	  Yoga has been recognized for its profound impact on the physical and mental well-being
+of individuals, promoting a harmonious balance between the body, mind, and soul. Yoga’s
+ability to alleviate stress, enhance flexibility, and build muscle strength are just a few benefits
+that have contributed to its widespread adoption.
+        </Typography>
+        <Typography variant="body1" paragraph>	
+Our proposed project aims to harness the power of artificial intelligence to develop an
+innovative AI yoga trainer. This AI-driven system is designed to check the user’s position,
+assess their posture, and provide feedback, ensuring that practitioners perform yoga poses
+correctly and effectively. By offering guidance, our AI yoga trainer seeks to optimize yoga
+practice, helping users achieve better alignment, prevent injuries, and experience the full
+range of benefits that yoga offers.
+
+
         </Typography>
       </Box>
 
@@ -23,24 +36,20 @@ const ProjectDetails: React.FC = () => {
           Key Objectives
         </Typography>
         <List>
+	  
           <ListItem>
             <Typography variant="body1">
-              Develop a scalable and user-friendly interface using React and TypeScript.
+	      To develop a system that can capture video of user performing yoga poses and by extracting the key points track the user's body movements.
             </Typography>
           </ListItem>
           <ListItem>
             <Typography variant="body1">
-              Implement robust computer vision algorithms for [specific task, e.g., object detection].
+	      To train a deep learning model to classify various yoga poses and detect errors in the user's performance.
             </Typography>
           </ListItem>
           <ListItem>
             <Typography variant="body1">
-              Ensure real-time processing with high accuracy.
-            </Typography>
-          </ListItem>
-          <ListItem>
-            <Typography variant="body1">
-              Test and deploy the system for practical use cases.
+	      To create a user-friendly interface that makes the application accessible to all. 
             </Typography>
           </ListItem>
         </List>
@@ -58,12 +67,17 @@ const ProjectDetails: React.FC = () => {
           </ListItem>
           <ListItem>
             <Typography variant="body1">
-              Backend: Python (Flask/Django), OpenCV, TensorFlow
+              Backend: Python (fastapi)
             </Typography>
           </ListItem>
           <ListItem>
             <Typography variant="body1">
-              Other Tools: Docker, GitHub for version control
+              ML and CV Frameworks/Libraries : OpenCV, Tensorflow, Pytorch
+            </Typography>
+          </ListItem>
+          <ListItem>
+            <Typography variant="body1">
+              Other Tools: Google Colab, Docker, GitHub for version control
             </Typography>
           </ListItem>
         </List>
@@ -74,7 +88,8 @@ const ProjectDetails: React.FC = () => {
           Expected Outcomes
         </Typography>
         <Typography variant="body1" paragraph>
-          By the end of this project, we aim to deliver a functional prototype that demonstrates [specific feature, e.g., real-time object detection and tracking]. The results will be documented and shared via this platform.
+	  
+          By the end of this project, we aim to deliver a real-time feedback on yoga poses along with scalable AI solution with a comprehensive pose library. The results will be documented and shared via this platform.
         </Typography>
       </Box>
     </Box>

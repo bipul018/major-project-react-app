@@ -14,10 +14,10 @@ const Footer: React.FC = () => {
     >
       <Container maxWidth="lg">
         <Typography variant="body2" color="textSecondary" align="center">
-          &copy; {new Date().getFullYear()} Project Status Website. All rights reserved.
+          &copy; {new Date().getFullYear()} Project Status Website.
         </Typography>
         <Typography variant="body2" color="textSecondary" align="center">
-          Made by Team VisionAI. Supervised by Project Supervisors and Coordinators.
+          Made by students in Pulchowk Campus as part of final year project. Supervised by Project Supervisors and Coordinators.
         </Typography>
       </Container>
     </Box>
