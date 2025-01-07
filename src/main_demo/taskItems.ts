@@ -59,6 +59,12 @@ export const taskItems = [
 	],
     },
     {
+	endpoint: "task/stsae_gcn_prediction",
+	request_fields: [
+	    { field_name: "video", type: RequestUnitType.Video, nullable: true },
+	],
+    },
+    {
 	endpoint: "task/downsample_it",
 	request_fields: [
 	    { field_name: "video", type: RequestUnitType.Video, nullable: true },

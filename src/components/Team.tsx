@@ -4,8 +4,9 @@ import { Box, Typography, Grid, Card, CardContent } from "@mui/material";
 
 interface TeamMember {
   name: string;
-  role: string;
-  responsibilities: string;
+  roll: string;
+  //role: string;
+  //responsibilities: string;
 }
 
 const teamMembers: TeamMember[] = [
