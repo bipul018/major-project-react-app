@@ -1,4 +1,4 @@
-import React, { useState, useRef, forwardRef, Ref, useImperativeHandle } from "react";
+import React, { useState, useRef } from "react";
 import {
   Box,
   Typography,
@@ -18,6 +18,96 @@ import {
 } from "@mui/material";
 import { sendPostRequest, FormComponent } from "./RequestMaker.tsx";
 import { taskItems as gTaskItems, RequestInputType } from "./taskItems.ts";
+import { DualVideo } from "./DualVideo.tsx";
+
+
+interface BackendResponse{
+    type: "string" | "list" | "map" | "none";
+    data: any;
+}
+
+const renderResponseDetails = (responseDetails: BackendResponse) => {
+  switch (responseDetails.type) {
+    case "string":
+      return (
+        <Typography variant="body1" sx={{ mt: 2 }}>
+          <strong>Response:</strong> {responseDetails.data}
+        </Typography>
+      );
+    case "list":
+      return (
+        <Box sx={{ mt: 2 }}>
+          <Typography variant="body1" gutterBottom>
+            <strong>Response:</strong>
+          </Typography>
+          <List>
+            {responseDetails.data.map((item: any, index: number) => (
+	      <ListItem key={index}>{item}</ListItem>
+            ))}
+          </List>
+        </Box>
+      );
+    case "map":
+      return (
+        <Box sx={{ mt: 2 }}>
+          <Typography variant="body1" gutterBottom>
+            <strong>Response:</strong>
+          </Typography>
+          <TableContainer component={Paper}>
+            <Table>
+	      <TableHead>
+                <TableRow>
+                  <TableCell>Key</TableCell>
+                  <TableCell>Value</TableCell>
+                </TableRow>
+	      </TableHead>
+	      <TableBody>
+                {Object.entries(responseDetails.data).map(([key, value]) => (
+                  <TableRow key={key}>
+                    <TableCell>{key}</TableCell>
+                    <TableCell>{String(value)}</TableCell>
+                  </TableRow>
+                ))}
+	      </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+      );
+    case "none":
+    default:
+      return null;
+  }
+};
+
+// Convert Blob/URL to File object
+const convertToFile = async (src: any, defaultName = "video.mp4") => {
+  try {
+    // If src is already a File, return it
+    if (src instanceof File) return src;
+    // If src is a Blob URL
+    if (src.startsWith("blob:")) {
+      const response = await fetch(src);
+      const blob = await response.blob();
+      return new File([blob], defaultName, { type: blob.type });
+    }
+    // If src is a base64 data URL
+    if (src.startsWith("data:")) {
+      const [header, data] = src.split(",");
+      const type = header.split(";")[0].split(":")[1];
+      const binary = atob(data);
+      const array = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) {
+        array[i] = binary.charCodeAt(i);
+      }
+      return new File([array], defaultName, { type });
+    }
+    throw new Error("Unsupported source format");
+  } catch (error) {
+    console.error("Error converting to File:", error);
+    return null;
+  }
+};
+
 
 export const TaskListWithDropdown: React.FC<{
   taskItems: Array<{ endpoint: string; request_fields: RequestInputType[] }>;
@@ -26,62 +116,7 @@ export const TaskListWithDropdown: React.FC<{
   const [url, setUrl] = useState<string>("http://localhost:8080/");
   const videoComponentRef = useRef<any>(null);
 
-  const [responseDetails, setResponseDetails] = useState<{
-    type: "string" | "list" | "map" | "none";
-    data: any;
-  }>({ type: "none", data: null });
-  const renderResponseDetails = () => {
-    switch (responseDetails.type) {
-      case "string":
-	return (
-          <Typography variant="body1" sx={{ mt: 2 }}>
-            <strong>Response:</strong> {responseDetails.data}
-          </Typography>
-	);
-      case "list":
-	return (
-          <Box sx={{ mt: 2 }}>
-            <Typography variant="body1" gutterBottom>
-              <strong>Response:</strong>
-            </Typography>
-            <List>
-              {responseDetails.data.map((item: any, index: number) => (
-		<ListItem key={index}>{item}</ListItem>
-              ))}
-            </List>
-          </Box>
-	);
-      case "map":
-	return (
-          <Box sx={{ mt: 2 }}>
-            <Typography variant="body1" gutterBottom>
-              <strong>Response:</strong>
-            </Typography>
-            <TableContainer component={Paper}>
-              <Table>
-		<TableHead>
-                  <TableRow>
-                    <TableCell>Key</TableCell>
-                    <TableCell>Value</TableCell>
-                  </TableRow>
-		</TableHead>
-		<TableBody>
-                  {Object.entries(responseDetails.data).map(([key, value]) => (
-                    <TableRow key={key}>
-                      <TableCell>{key}</TableCell>
-                      <TableCell>{String(value)}</TableCell>
-                    </TableRow>
-                  ))}
-		</TableBody>
-              </Table>
-            </TableContainer>
-          </Box>
-	);
-      case "none":
-      default:
-	return null;
-    }
-  };
+  const [responseDetails, setResponseDetails] = useState<BackendResponse>({ type: "none", data: null });
 
 
   const handleVideo1Change = async (file: File | null) => {
@@ -142,34 +177,6 @@ export const TaskListWithDropdown: React.FC<{
     }
   };
 
-  // Convert Blob/URL to File object
-  const convertToFile = async (src: any, defaultName = "video.mp4") => {
-    try {
-      // If src is already a File, return it
-      if (src instanceof File) return src;
-      // If src is a Blob URL
-      if (src.startsWith("blob:")) {
-        const response = await fetch(src);
-        const blob = await response.blob();
-        return new File([blob], defaultName, { type: blob.type });
-      }
-      // If src is a base64 data URL
-      if (src.startsWith("data:")) {
-        const [header, data] = src.split(",");
-        const type = header.split(";")[0].split(":")[1];
-        const binary = atob(data);
-        const array = new Uint8Array(binary.length);
-        for (let i = 0; i < binary.length; i++) {
-          array[i] = binary.charCodeAt(i);
-        }
-        return new File([array], defaultName, { type });
-      }
-      throw new Error("Unsupported source format");
-    } catch (error) {
-      console.error("Error converting to File:", error);
-      return null;
-    }
-  };
 
   const handleGetVideo = async () => {
     const response = await sendPostRequest(
@@ -180,16 +187,9 @@ export const TaskListWithDropdown: React.FC<{
     );
     if (response.status === "Success" && response.value.bytes) {
       const data = response.value.bytes;
-      const counteq = (data.match(/=+/g) || []).length;
-      //const sdata = data.replace(/=+$/, '');
 
-      console.log(`The video had ${counteq} = at end`);
-      //const videoBytes = atob(response.value.bytes);
-      //const videoBlob = new Blob([new Uint8Array(videoBytes.length).map((_, i) => videoBytes.charCodeAt(i))], { type: response.value.type});
-      //const videoUrl = URL.createObjectURL(videoBlob);
-      //const videoUrl = `data:${response.value.type};base64,${sdata}`;
       const videoUrl = `data:${response.value.type};base64,${data}`;
-      console.log(`The video url is : ${videoUrl}`);
+      //console.log(`The video url is : ${videoUrl}`);
       if (videoComponentRef.current) {
         videoComponentRef.current.setVideo2(videoUrl);
       }
@@ -252,8 +252,8 @@ export const TaskListWithDropdown: React.FC<{
                 }, {} as Record<string, null>)),
             }}
           />
-	  {renderResponseDetails()}
-          <VideoComponent
+	  {renderResponseDetails(responseDetails)}
+          <DualVideo
             ref={videoComponentRef}
             title="Source and Processed Videos"
             onVideo1Change={handleVideo1Change}
@@ -268,153 +268,3 @@ export const TaskListWithDropdown: React.FC<{
 };
 
 export default TaskListWithDropdown;
-
-export interface VideoComponentProps {
-  title: string;
-  onVideo1Change?: (file: File | null) => Promise<void>;
-  height?: string | null;
-}
-
-export interface VideoComponentRef {
-  getVideoData: () => { src1: string | null; src2: string | null };
-  setVideo1: (data_url: string | null) => void;
-  setVideo2: (data_url: string | null) => void;
-}
-
-export const VideoComponent = forwardRef(
-  (props: VideoComponentProps, ref: Ref<VideoComponentRef>) => {
-    const [videoSrc1, setVideoSrc1] = useState<string | null>(null);
-    const [videoSrc2, setVideoSrc2] = useState<string | null>(null);
-
-    const videoRef1 = useRef<HTMLVideoElement>(null);
-    const videoRef2 = useRef<HTMLVideoElement>(null);
-    
-    const fileInputRef1 = useRef<HTMLInputElement>(null);
-    const fileInputRef2 = useRef<HTMLInputElement>(null);
-    
-    const handleFileSelect1 = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (file) {
-        if (props.onVideo1Change) {
-          props.onVideo1Change(file);
-        }
-        setVideoSrc1(URL.createObjectURL(file));
-      }
-
-  //useEffect(() => {
-  //  return () => {
-  //    if (videoSrc1) URL.revokeObjectURL(videoSrc1);
-  //    if (videoSrc2) URL.revokeObjectURL(videoSrc2);
-  //  };
-  //}, [videoSrc1, videoSrc2]);
-    };
-
-    const handleFileSelect2 = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (file) {
-        setVideoSrc2(URL.createObjectURL(file));
-      }
-    };
-
-    useImperativeHandle(ref, () => ({
-      getVideoData: () => {
-        return {
-          src1: videoSrc1,
-          src2: videoSrc2,
-        };
-      },
-      setVideo1: (data_url: string | null) => {
-        setVideoSrc1(data_url);
-      },
-      setVideo2: (data_url: string | null) => {
-        setVideoSrc2(data_url);
-      },
-    }));
-
-    const handlePlayPause = () => {
-      const videos = [videoRef1.current, videoRef2.current];
-      const arePaused = videos.every((video) => (video ? video.paused : true));
-
-      if (arePaused) {
-        videos.forEach((video) => video && video.play());
-      } else {
-        videos.forEach((video) => video && video.pause());
-      }
-    };
-
-    const handleReset = () => {
-      if (videoRef1.current) {
-        videoRef1.current.currentTime = 0;
-        videoRef1.current.pause();
-      }
-      if (videoRef2.current) {
-        videoRef2.current.currentTime = 0;
-        videoRef2.current.pause();
-      }
-    };
-
-    return (
-      <Box sx={{ height: props.height ?? "auto" }}>
-        <Typography variant="h6" gutterBottom>
-          {props.title}
-        </Typography>
-        <Box mb={2}>
-          <Button variant="contained" onClick={handlePlayPause} sx={{ mr: 2 }}>
-            Play/Pause
-          </Button>
-          <Button variant="contained" onClick={handleReset}>
-            Reset
-          </Button>
-        </Box>
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={6}>
-            <video controls ref={videoRef1} style={{ width: "100%" }} src={videoSrc1 ?? ""} />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <video controls ref={videoRef2} style={{ width: "100%" }} src={videoSrc2 ?? ""} />
-          </Grid>
-        </Grid>
-        <Box mt={2}>
-	  {/* Styled File Input for Video 1 */}
-          <input
-            type="file"
-            accept="video/*"
-            onChange={handleFileSelect1}
-            ref={fileInputRef1}
-            style={{ display: "none" }}
-          />
-          <Button
-            variant="outlined"
-            onClick={ () => {
-	      if (fileInputRef1.current) {
-		fileInputRef1.current.click();
-	      }
-	    }}
-            sx={{ mr: 2 }}
-          >
-            Upload Video 1
-          </Button>
-
-          {/* Styled File Input for Video 2 */}
-          <input
-            type="file"
-            accept="video/*"
-            onChange={handleFileSelect2}
-            ref={fileInputRef2}
-            style={{ display: "none" }}
-          />
-          <Button
-            variant="outlined"
-            onClick={() => {
-	      if (fileInputRef2.current) {
-		fileInputRef2.current.click();
-	      }
-	    }}
-          >
-            Upload Video 2
-          </Button>
-        </Box>
-      </Box>
-    );
-  }
-); 
