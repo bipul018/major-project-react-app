@@ -6,7 +6,7 @@ interface Milestone {
   title: string;
   description: string;
   status: "Completed" | "In Progress" | "Pending";
-  date: string;
+  //date: string;
 }
 
 const milestones: Milestone[] = [
