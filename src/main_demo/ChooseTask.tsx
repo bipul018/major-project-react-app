@@ -181,7 +181,7 @@ export const TaskListWithDropdown: React.FC<{
     if (response.status === "Success" && response.value.bytes) {
       const data = response.value.bytes;
       const counteq = (data.match(/=+/g) || []).length;
-      const sdata = data.replace(/=+$/, '');
+      //const sdata = data.replace(/=+$/, '');
 
       console.log(`The video had ${counteq} = at end`);
       //const videoBytes = atob(response.value.bytes);
