@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import {
   Button,
+  TextField,
 } from "@mui/material";
 
 // fkit just a simple fxn that returns some other fxns
@@ -117,31 +118,115 @@ export const make_video_stream = ({video_ref, endpoint='localhost:8080/wsprocess
   };
 }
 
-    }
-    if (socket.current){
-      socket.current.close();
-      socket.current = null;
+export const StreamDemo: React.FC<{}> = () => {
+  const videoRef1 = useRef<HTMLVideoElement>(null);
+  const [videoSrc1, setVideoSrc1] = useState<string | null>(null);
+  const fileInputRef1 = useRef<HTMLInputElement>(null);
+
+  const handleFileSelect1 = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setVideoSrc1(URL.createObjectURL(file));
     }
   };
 
+
   useEffect(() => {
-    return () => stopStreaming(); // Cleanup
-  }, []);
+    return () => {
+      if (videoSrc1) URL.revokeObjectURL(videoSrc1);
+    };
+  }, [videoSrc1]);
+
+  const ms_gap = 100;
+
+  // TODO:: Make a state machine like thing, or at least make it type specific
+  const additional_args = useRef<any>(null);
+  
+  const filter_args = (metadata: any, frameBuffer: any) => {
+    //console.log(`is_first is ${JSON.stringify(is_first)}`);
+    if(additional_args.current !== null){
+      metadata = {...metadata, ...additional_args.current};
+      //metadata['fps'] = 1000/ms_gap;
+      console.log(`Printing metadata : ${JSON.stringify(metadata)}`);
+      //set_is_first(false);
+      //is_first.current = false;
+      additional_args.current = null;
+    }
+    //console.log(`Printing metadata : ${JSON.stringify(metadata)}`);
+    return {metadata, frameBuffer};
+  };
+
+
+  const [streamer, setStreamer] = useState<ReturnType<typeof make_video_stream>>({startStreaming:()=>{}, stopStreaming:()=>{}});
+
+  // Might need to reload this after video src changes
+  useEffect(() => {
+    if(videoRef1.current){
+      setStreamer(make_video_stream({
+	video_ref: videoRef1,
+	rate_ms:ms_gap,
+	on_send:filter_args,
+      }));
+    }
+    return () => {
+      stop_streaming();
+    };
+  }, [videoRef1]);
+  
+  const start_streaming = () => {
+    //set_is_first(true);
+    //is_first.current = true;
+    additional_args.current = { 'fps': 1000/ms_gap };
+    streamer.startStreaming();
+  };
+  const stop_streaming = () => {
+    streamer.stopStreaming();
+  };
+
 
   return (
     <div>
-      <canvas ref={canvasRef} style={{ display: "none" }}></canvas>
-      <Button variant="contained" onClick={startStreaming} sx={{ mt: 2 }}>
+      <video controls ref={videoRef1}  src={videoSrc1 ?? ""} />
+      <input
+        type="file"
+        accept="video/*"
+        onChange={handleFileSelect1}
+        ref={fileInputRef1}
+        style={{ display: "none" }}
+      />
+      
+      <Button
+        variant="outlined"
+        onClick={ () => {
+	  if (fileInputRef1.current) {
+	    fileInputRef1.current.click();
+	  }
+	}}
+        sx={{ mr: 2 }}
+      >
+        Upload Video 1
+      </Button>
+      
+      <Button
+        variant="outlined"
+        onClick={start_streaming}
+        sx={{ mr: 2 }}
+      >
         Start Streaming
       </Button>
       <Button variant="contained" onClick={stopStreaming} sx={{ mt: 2 }}>
+
+      <Button
+        variant="outlined"
+        onClick={stop_streaming}
+        sx={{ mr: 2 }}
+      >
         Stop Streaming
       </Button>
-      <Button variant="contained" onClick={()=>{stopStreaming(); startStreaming(); }} sx={{ mt: 2 }}>
-        Restart Streaming
       </Button>
     </div>
-);
+  );
+};
 
 interface VideoStreamer {
   h: number,
