@@ -9,13 +9,31 @@ export const VideoStreamer: React.FC<{
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [intervalId, setIntervalId] = useState<ReturnType<typeof setInterval> | null>(null);
   const socket = useRef<WebSocket | null>(null);
+// fkit just a simple fxn that returns some other fxns
+export const make_video_stream = ({video_ref, endpoint='localhost:8080/wsprocess_frame', on_receive=null, on_send=null, rate_ms=100} : {
+  video_ref: React.RefObject<HTMLVideoElement>;
+  endpoint?: String;
+  on_receive?: any; // TODO:: Find the signature and write it here
+  on_send?: any; // TODO:: Find this also
+  rate_ms?: number;
+  //on_open?: any;
+  // for on_close, just do it just before calling stop fxn
+}) => {
+  const canvas = document.createElement('canvas');
+  const context = canvas.getContext('2d');
 
   const streamFunc = () => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
+  // const [socket, setSocket] = useState<WebSocket | null>(null);
+  let socket: WebSocket|null = null;
+  let intervalId : ReturnType<typeof setInterval> | null = null;
 
     if (video && canvas) {
       const context = canvas.getContext("2d");
+  const streamFunc = async () => {
+    if(video_ref && video_ref.current){
+      const video = video_ref.current;
       if (context) {
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
@@ -57,7 +75,18 @@ export const VideoStreamer: React.FC<{
     }
   };
 
-  // Start capturing frames from the video
+  const stopStreaming = () => {
+    if (intervalId !== null) {
+      clearInterval(intervalId);
+      intervalId = null;
+      //setIntervalId(null);
+    }
+    if (socket !== null) {
+      socket.close();
+      socket = null;
+      //setSocket(null);
+    }
+  };
   const startStreaming = () => {
     if (videoRef.current && canvasRef.current) {
 
@@ -90,10 +119,44 @@ export const VideoStreamer: React.FC<{
           const iid = setInterval(streamFunc, 100); // Adjust interval for frame rate
           setIntervalId(iid);
 	};
+    if (video_ref.current) {
+      if (socket === null) {
+        const ws = new WebSocket('ws://' + endpoint);
 
+        ws.onmessage = (event: MessageEvent) => {
+          console.log(`Received data from server: ${JSON.stringify(event.data)}`);
+	  on_receive(JSON.stringify(event.data));
+        };
+        ws.onerror = (event: Event) => {
+          console.log(`WebSocket Error: ${event}`);
+          stopStreaming();
+        };
+        ws.onclose = () => {
+          console.log('WebSocket connection terminated.');
+          stopStreaming();
+        };
+
+	//setSocket(ws);
+	socket = ws;
+        ws.onopen = () => {
+          console.log('WebSocket connection established.');
+
+          if (intervalId !== null) {
+            clearInterval(intervalId);
+          }
+          const iid = setInterval(streamFunc, rate_ms);
+	  intervalId = iid;
+          //setIntervalId(iid);
+        };
       }
     }
   };
+  
+  return {
+    startStreaming,
+    stopStreaming,
+  };
+}
 
   // Stop capturing frames from the video
   const stopStreaming = () => {
@@ -127,6 +190,9 @@ export const VideoStreamer: React.FC<{
       </Button>
     </div>
 );
+
+interface VideoStreamer {
+  h: number,
 };
 
 export default VideoStreamer;
