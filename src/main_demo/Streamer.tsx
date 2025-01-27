@@ -183,6 +183,8 @@ export const StreamDemo: React.FC<{}> = () => {
     streamer.stopStreaming();
   };
 
+  // Setup for features
+  const [clipNumber, setClipNumber] = useState(0);
 
   return (
     <div>
@@ -214,7 +216,13 @@ export const StreamDemo: React.FC<{}> = () => {
       >
         Start Streaming
       </Button>
-      <Button variant="contained" onClick={stopStreaming} sx={{ mt: 2 }}>
+      <Button
+        variant="outlined"
+        onClick={() => { additional_args.current = { 'reset': '' }; }}
+        sx={{ mr: 2 }}
+      >
+        Reset Streaming
+      </Button>
 
       <Button
         variant="outlined"
@@ -223,7 +231,45 @@ export const StreamDemo: React.FC<{}> = () => {
       >
         Stop Streaming
       </Button>
+      <Button
+        variant="outlined"
+        onClick={() => {
+	  additional_args.current = {
+	    'clip_here': ''
+	  };
+	}}
+        sx={{ mr: 2 }}
+      >
+        Clip Here
       </Button>
+      <Button
+        variant="outlined"
+        onClick={() => {
+	  additional_args.current = {
+	    'clip_count': ''
+	  };
+	}}
+        sx={{ mr: 2 }}
+      >
+        Get Clips Count
+      </Button>
+	    <div>
+	      <TextField
+  label="Enter Clip Number"
+  type="number"
+  value={clipNumber}
+  onChange={(e) => setClipNumber(parseInt(e.target.value))}
+  variant="outlined"
+  sx={{ mr: 2 }}
+	      />
+	      <Button
+  variant="outlined"
+  onClick={()=>{additional_args.current= { 'get_clip' : clipNumber  };}}
+  sx={{ mr: 2 }}
+	      >
+  Get Clip
+	      </Button>
+	    </div>
     </div>
   );
 };
