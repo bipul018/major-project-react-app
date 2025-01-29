@@ -84,8 +84,10 @@ export const make_video_stream = ({video_ref, endpoint='localhost:8080/wsprocess
         const ws = new WebSocket('ws://' + endpoint);
 
         ws.onmessage = (event: MessageEvent) => {
-          console.log(`Received data from server: ${JSON.stringify(event.data)}`);
-	  on_receive(JSON.stringify(event.data));
+          //console.log(`Received data from server: ${JSON.stringify(event.data)}`);
+	  if (on_receive != null){
+	    on_receive(event.data);
+	  }
         };
         ws.onerror = (event: Event) => {
           console.log(`WebSocket Error: ${event}`);
@@ -123,9 +125,53 @@ export const StreamDemo: React.FC<{}> = () => {
   const [videoSrc1, setVideoSrc1] = useState<string | null>(null);
   const fileInputRef1 = useRef<HTMLInputElement>(null);
 
+  // Webcam stuff
+  const [isWebcamActive, setIsWebcamActive] = useState(false);
+  const [webcamStream, setWebcamStream] = useState<MediaStream | null>(null);
+
+  // Cleanup webcam on unmount
+  useEffect(() => {
+    return () => {
+      webcamStream?.getTracks().forEach(track => track.stop());
+    };
+  }, [webcamStream]);
+
+  const turn_off_webcam = async() => {
+    webcamStream?.getTracks().forEach(track => track.stop());
+    setWebcamStream(null);
+    setIsWebcamActive(false);
+    if (videoRef1.current) {
+      videoRef1.current.srcObject = null;
+    }
+  };
+  const turn_on_webcam = async() => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      if (videoRef1.current) {
+        videoRef1.current.srcObject = stream;
+      }
+      setWebcamStream(stream);
+      setIsWebcamActive(true);
+      setVideoSrc1(null); // Clear any uploaded video
+    } catch (error) {
+      console.error('Error accessing webcam:', error);
+    }
+  };
+  
+  const handleWebcamToggle = async () => {
+    if (!isWebcamActive) {
+      turn_on_webcam();
+    } else {
+      turn_off_webcam();
+    }
+  };
+
+
+
   const handleFileSelect1 = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      turn_off_webcam();
       setVideoSrc1(URL.createObjectURL(file));
     }
   };
@@ -156,6 +202,39 @@ export const StreamDemo: React.FC<{}> = () => {
     return {metadata, frameBuffer};
   };
 
+  const handle_receive = async (data) => {
+    //const json_data = typeof data === "string" ? JSON.parse(data) : data;
+    const json_data = JSON.parse(data);
+    //console.log(`Json data was :${json_data}`);
+    const {timestamp, message, ...rest} = json_data;
+
+    // Calculate latency,
+    const curr_time = Date.now();
+    const rtt = curr_time - timestamp;
+
+    if(true){
+      console.log(`Message [${timestamp}] RTT = ${rtt/1000}`);
+    }
+
+    // Get the type of data maybe
+    // TODO:: Implement this later (when you start actually giving a fk), with types
+    if(message.toLowerCase().includes('yoga state changed')){
+      // Has from, to, and frame_duration message
+      const {from, to, frame_duration, ...remaining} = rest;
+      console.log(`Yoga state ${from}, lasted for ${frame_duration} and changed to ${to}`);
+    }
+    if(message.toLowerCase().includes('yoga predicted')){
+      // has poses, confidences, text_suggestion for now
+      const {poses, confidences, text_suggestion, ...remaining} = rest;
+      console.log(`Yoga was predicted.\nSome top predictions were ${poses}\nThe confidences are ${confidences}\nYou should follow this advice'${text_suggestion}'`);
+    }
+    if(message.toLowerCase().includes('clip count')){
+      // has just clip_count
+      const {clip_count, ...remaining} = rest;
+      console.log(`There are currently ${clip_count} clips.`)
+    }
+  };
+
 
   const [streamer, setStreamer] = useState<ReturnType<typeof make_video_stream>>({startStreaming:()=>{}, stopStreaming:()=>{}});
 
@@ -166,6 +245,7 @@ export const StreamDemo: React.FC<{}> = () => {
 	video_ref: videoRef1,
 	rate_ms:ms_gap,
 	on_send:filter_args,
+	on_receive:handle_receive,
       }));
     }
     return () => {
@@ -209,6 +289,14 @@ export const StreamDemo: React.FC<{}> = () => {
         Upload Video 1
       </Button>
       
+      <Button
+	variant="outlined"
+	onClick={handleWebcamToggle}
+	sx={{ mr: 2 }}
+      >
+	{isWebcamActive ? 'Stop Webcam' : 'Use Webcam'}
+      </Button>
+
       <Button
         variant="outlined"
         onClick={start_streaming}
