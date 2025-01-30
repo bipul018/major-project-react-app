@@ -225,8 +225,15 @@ export const StreamDemo: React.FC<{}> = () => {
     }
     if(message.toLowerCase().includes('yoga predicted')){
       // has poses, confidences, text_suggestion for now
-      const {poses, confidences, text_suggestion, ...remaining} = rest;
+      const {poses, confidences, text_suggestion, voice_suggestion, ...remaining} = rest;
       console.log(`Yoga was predicted.\nSome top predictions were ${poses}\nThe confidences are ${confidences}\nYou should follow this advice'${text_suggestion}'`);
+      console.log(`The length of voice suggestion was ${voice_suggestion.length}`);
+      // Decode base64 audio
+      const audioSrc = `data:audio/wav;base64,${voice_suggestion}`;
+
+      // Create an audio element and play it
+      const audio = new Audio(audioSrc);
+      audio.play();
     }
     if(message.toLowerCase().includes('clip count')){
       // has just clip_count
