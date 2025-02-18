@@ -4,6 +4,9 @@ import {
   TextField,
 } from "@mui/material";
 
+import VideoDrawer, { VideoDrawerHandle } from './VideoDrawer';
+import GradioCanvas from './GradioCanvas';
+
 // fkit just a simple fxn that returns some other fxns
 export const make_video_stream = ({video_ref, endpoint='localhost:8080/wsprocess_frame', on_receive=null, on_send=null, rate_ms=100} : {
   video_ref: React.RefObject<HTMLVideoElement>;
@@ -129,6 +132,24 @@ export const StreamDemo: React.FC<{}> = () => {
   const [isWebcamActive, setIsWebcamActive] = useState(false);
   const [webcamStream, setWebcamStream] = useState<MediaStream | null>(null);
 
+  // Setup the canvas stuff
+  const video_canvas_ref = useRef<VideoDrawerHandle>(null);
+  const capture_canvas = () => {
+    //console.log("Now going to clear the canvas");
+    video_canvas_ref.current?.clearCanvas();
+    //console.log("hi, shouldve cleared canvsd");
+  };
+  const make_line = () => {
+    const vcanv = video_canvas_ref.current;
+    if(vcanv){
+      vcanv.drawLine(
+	{x: 100, y: 100},
+	{x: 200, y: 200},
+	'#0000ff',
+      );
+    }
+  };
+
   // Cleanup webcam on unmount
   useEffect(() => {
     return () => {
@@ -203,6 +224,7 @@ export const StreamDemo: React.FC<{}> = () => {
   };
 
   const handle_receive = async (data) => {
+    //console.log(`The data was :\n${data}`);
     //const json_data = typeof data === "string" ? JSON.parse(data) : data;
     const json_data = JSON.parse(data);
     //console.log(`Json data was :${json_data}`);
@@ -212,9 +234,8 @@ export const StreamDemo: React.FC<{}> = () => {
     const curr_time = Date.now();
     const rtt = curr_time - timestamp;
 
-    if(true){
-      console.log(`Message [${timestamp}] RTT = ${rtt/1000}`);
-    }
+    //console.log(`Message [${timestamp}] RTT = ${rtt/1000}`);
+
 
     // Get the type of data maybe
     // TODO:: Implement this later (when you start actually giving a fk), with types
@@ -223,22 +244,52 @@ export const StreamDemo: React.FC<{}> = () => {
       const {from, to, frame_duration, ...remaining} = rest;
       console.log(`Yoga state ${from}, lasted for ${frame_duration} and changed to ${to}`);
     }
-    if(message.toLowerCase().includes('yoga predicted')){
+    else if(message.toLowerCase().includes('yoga predicted')){
       // has poses, confidences, text_suggestion for now
-      const {poses, confidences, text_suggestion, voice_suggestion, ...remaining} = rest;
-      console.log(`Yoga was predicted.\nSome top predictions were ${poses}\nThe confidences are ${confidences}\nYou should follow this advice'${text_suggestion}'`);
+      const {poses, confidences, ...remaining} = rest;
+      console.log(`Yoga was predicted.\nSome top predictions were ${poses}\nThe confidences are ${confidences}'`);
+    }
+    else if(message.toLowerCase().includes('yoga text feedback')){
+      console.log(`Message [${timestamp}] RTT = ${rtt/1000}`);
+      const {text_suggestion, ...remaining} = rest;
+      console.log(`You should be doing this: '${text_suggestion}'`);
+    }
+    else if(message.toLowerCase().includes('yoga voice feedback')){
+      console.log(`Message [${timestamp}] RTT = ${rtt/1000}`);
+      const {voice_suggestion, ...remaining} = rest;
       console.log(`The length of voice suggestion was ${voice_suggestion.length}`);
       // Decode base64 audio
       const audioSrc = `data:audio/wav;base64,${voice_suggestion}`;
-
+      
       // Create an audio element and play it
       const audio = new Audio(audioSrc);
       audio.play();
     }
-    if(message.toLowerCase().includes('clip count')){
+    else if(message.toLowerCase().includes('clip count')){
       // has just clip_count
       const {clip_count, ...remaining} = rest;
       console.log(`There are currently ${clip_count} clips.`)
+    }
+    else if(message.toLowerCase().includes('draw line landmarks')){
+      const {landmark_type, landmarks, ...remaining} = rest;
+      // TODO:: validate the `landmarks` being of proper shape maybe
+      // console.log(`The landmarks were received of type "${landmark_type}", type of landmarks object is "${typeof landmarks}"`);
+      capture_canvas();
+      landmarks.forEach(([start, end]) => {
+	const [sx, sy] = start;
+	const [ex, ey] = end;
+	const vcanv = video_canvas_ref.current;
+	if(vcanv){
+	  vcanv.drawLine(
+	    {x: sx, y: sy},
+	    {x: ex, y: ey},
+	    '#0000ff',
+	  );
+	}
+      });
+    }
+    else {
+      console.log(`An unknown message of type "${message}" was received`);
     }
   };
 
@@ -276,6 +327,18 @@ export const StreamDemo: React.FC<{}> = () => {
   return (
     <div>
       <video controls ref={videoRef1}  src={videoSrc1 ?? ""} />
+
+
+
+      <VideoDrawer ref={video_canvas_ref} srcVideoRef={videoRef1} />
+
+      
+      <GradioCanvas
+        videoRef={videoRef1}
+        timerInterval={5000} // 5 seconds
+        gradioUrl="https://44164d86315f9274fc.gradio.live"
+      />
+
       <input
         type="file"
         accept="video/*"
@@ -296,6 +359,23 @@ export const StreamDemo: React.FC<{}> = () => {
         Upload Video 1
       </Button>
       
+
+
+      <Button
+        variant="outlined"
+        onClick={capture_canvas}
+        sx={{ mr: 2 }}
+      >
+        Capture Into Canvas
+      </Button>
+      
+      <Button
+        variant="outlined"
+        onClick={make_line}
+        sx={{ mr: 2 }}
+      >
+        Draw Line on Canvas
+      </Button>
       <Button
 	variant="outlined"
 	onClick={handleWebcamToggle}
