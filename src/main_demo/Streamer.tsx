@@ -5,7 +5,7 @@ import {
 } from "@mui/material";
 
 import VideoDrawer, { VideoDrawerHandle } from './VideoDrawer';
-import GradioCanvas from './GradioCanvas';
+import GradioMeshIntegrator from './GradioMeshIntegrator';
 
 // fkit just a simple fxn that returns some other fxns
 export const make_video_stream = ({video_ref, endpoint='localhost:8080/wsprocess_frame', on_receive=null, on_send=null, rate_ms=100} : {
@@ -179,6 +179,12 @@ export const StreamDemo: React.FC<{}> = () => {
     }
   };
   
+  // Gradio communication stuff
+  const [gradio_api_url, set_gradio_api_url] = useState('');
+  const [capture_gradio_signal, set_capture_gradio_signal] = useState(false);
+  const gradio_mesh_integrator_ref = useRef<any>();
+
+
   const handleWebcamToggle = async () => {
     if (!isWebcamActive) {
       turn_on_webcam();
@@ -248,6 +254,12 @@ export const StreamDemo: React.FC<{}> = () => {
       // has poses, confidences, text_suggestion for now
       const {poses, confidences, ...remaining} = rest;
       console.log(`Yoga was predicted.\nSome top predictions were ${poses}\nThe confidences are ${confidences}'`);
+
+      // Also trigger gradio api running by just toggling the `signal`
+      //set_capture_gradio_signal(!capture_gradio_signal);
+      if(gradio_mesh_integrator_ref.current){
+	gradio_mesh_integrator_ref.current.run_gradio_inference();
+      }
     }
     else if(message.toLowerCase().includes('yoga text feedback')){
       console.log(`Message [${timestamp}] RTT = ${rtt/1000}`);
@@ -326,17 +338,22 @@ export const StreamDemo: React.FC<{}> = () => {
 
   return (
     <div>
+	      <TextField
+  label="Enter Gradio API Url"
+  type="string"
+  value={gradio_api_url}
+  onChange={(e) => set_gradio_api_url(e.target.value)}
+  variant="outlined"
+  sx={{ mr: 2 }}
+	      />
       <video controls ref={videoRef1}  src={videoSrc1 ?? ""} />
 
-
-
       <VideoDrawer ref={video_canvas_ref} srcVideoRef={videoRef1} />
-
       
-      <GradioCanvas
-        videoRef={videoRef1}
-        timerInterval={5000} // 5 seconds
-        gradioUrl="https://44164d86315f9274fc.gradio.live"
+      <GradioMeshIntegrator
+	ref={gradio_mesh_integrator_ref}
+	gradio_url={gradio_api_url}
+	video_elem_ref={videoRef1}
       />
 
       <input
