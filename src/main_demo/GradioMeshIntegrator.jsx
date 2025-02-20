@@ -120,7 +120,9 @@ const MeshViewer = ({ meshData, facesData=null, width=null, height=null}) => {
 	    if (facesData) {
 		console.log(`Going to draw faces`);
 		const material = new THREE.MeshPhongMaterial({
-		    color: 0xff0000,
+		    color: 0xffcc99,
+		    specular: 0x222222,
+		    shininess: 30, 
 		    wireframe: false, // Set to false for solid rendering
 		    wireframeLinewidth: 0.5
 		});
@@ -186,10 +188,13 @@ const GradioMeshIntegrator = forwardRef(({gradio_url, video_elem_ref}, ref) => {
     const run_gradio_inference = async () => {
 	console.log(`I was signaled to run gradio api inference`);
 	if (!gradio_url || !video_elem_ref.current) return;
+	
+
 
 	const video = video_elem_ref.current;
 	const canvas = canvasRef.current;
 
+	setDims({width: video.videoWidth, height: video.videoHeight});
 	const context = canvas.getContext('2d');
 	canvas.width = video.videoWidth;
 	canvas.height = video.videoHeight;
