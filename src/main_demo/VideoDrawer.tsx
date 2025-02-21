@@ -26,7 +26,7 @@ export interface VideoDrawerHandle {
 
 const VideoDrawer = forwardRef<VideoDrawerHandle, VideoDrawerProps>(
   (
-    { srcVideoRef/*, updateInterval = 100*//*, width = 640, height = 480*/ },
+    { srcVideoRef/*, updateInterval = 100*//*, width = 640, height = 480*/, style },
     ref
   ) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -129,7 +129,7 @@ const VideoDrawer = forwardRef<VideoDrawerHandle, VideoDrawerProps>(
     return (
         <canvas
           ref={canvasRef}
-          style={{ border: '1px solid #ccc' }}
+	  style={{ ...style, border: '1px solid #ccc' }}
         />
 
     );

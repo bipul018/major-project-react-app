@@ -9,7 +9,7 @@ import { Client } from '@gradio/client';
 //  facesDataData: number[][] | null; // [[x1,y1,z1], [x2,y2,z2], ...]
 //}
 
-const MeshViewer = ({ meshData, facesData=null, width=null, height=null}) => {
+const MeshViewer = ({ meshData, facesData=null, width, height }) => {
     const mountRef = useRef(null);
     const sceneRef = useRef(null);
     const cameraRef = useRef(null);
@@ -42,15 +42,7 @@ const MeshViewer = ({ meshData, facesData=null, width=null, height=null}) => {
 	// Add to DOM
 	mountRef.current?.appendChild(renderer.domElement);
 
-	// Handle resize
-	const handleResize = () => {
-	    camera.aspect = width / height;
-	    camera.updateProjectionMatrix();
-	    renderer.setSize(width,
-			     height);
-	};
 
-	window.addEventListener('resize', handleResize);
 
 	// Animation loop
 	const animate = () => {
@@ -65,11 +57,27 @@ const MeshViewer = ({ meshData, facesData=null, width=null, height=null}) => {
 
 	return () => {
 	    console.log(`Going to destroy the meshviewer through use-effects`);
-	    window.removeEventListener('resize', handleResize);
+	    //window.removeEventListener('resize', handleResize);
 	    mountRef.current?.removeChild(renderer.domElement);
 	    renderer.dispose();
 	};
     }, []);
+
+    // Handle resize
+    const handleResize = () => {
+	if(cameraRef.current && rendererRef.current){
+	    const camera = cameraRef.current;
+	    const renderer = rendererRef.current;
+	    camera.aspect = width / height;
+	    camera.updateProjectionMatrix();
+	    renderer.setSize(width,
+			     height);
+	}
+    };
+
+    useEffect(() => {
+	handleResize();
+    }, [width, height]);
 
     useEffect(() => {
 	console.log(`Mesh data changed (inside MeshViewer)`);
@@ -167,21 +175,29 @@ const MeshViewer = ({ meshData, facesData=null, width=null, height=null}) => {
 	console.log(`Finished doing stuff in mesh viewer, so quitting`);
     }, [meshData, facesData]);
 
-    return <div ref={mountRef} style={{ width: '100%', height: '100%' }} />;
+    return <div ref={mountRef} style={{ width: width, height: width }} />;
 };
 
 // Utility fxn to help draw upon a mesh viewer?
-const GradioMeshIntegrator = forwardRef(({gradio_url, video_elem_ref}, ref) => {
+const GradioMeshIntegrator = forwardRef(({gradio_url, video_elem_ref, style}, ref) => {
     const canvasRef = useRef(null);
     const [meshData, setMeshData] = useState(null);
     const [facesData, setFacesData] = useState(null);
-    const [dims, setDims] = useState({width: null, height: null});
+    const [dims, setDims] = useState({width: 0, height: 0});
 
 
     useEffect(() => {
-	if (!video_elem_ref.current) return;
-	const video = video_elem_ref.current;
-	setDims({width: video.videoWidth, height: video.videoHeight});
+	//if (!video_elem_ref.current) return;
+	//const video = video_elem_ref.current;
+	//if (video) {
+	//    const handleLoadedMetadata = () => {
+	//	setDims({ width: video.videoWidth, height: video.videoHeight });
+	//    };
+	//    video.addEventListener('loadedmetadata', handleLoadedMetadata);
+	//    return () => {
+	//	video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+	//    };
+	//}
     }, [video_elem_ref]);
 
     //useEffect(() => {
@@ -189,12 +205,10 @@ const GradioMeshIntegrator = forwardRef(({gradio_url, video_elem_ref}, ref) => {
 	console.log(`I was signaled to run gradio api inference`);
 	if (!gradio_url || !video_elem_ref.current) return;
 	
-
-
 	const video = video_elem_ref.current;
 	const canvas = canvasRef.current;
 
-	setDims({width: video.videoWidth, height: video.videoHeight});
+
 	const context = canvas.getContext('2d');
 	canvas.width = video.videoWidth;
 	canvas.height = video.videoHeight;
@@ -215,6 +229,7 @@ const GradioMeshIntegrator = forwardRef(({gradio_url, video_elem_ref}, ref) => {
 		    console.log(`Got the dammned results`);
 
 		    // Update the state with the processed image
+		    setDims({width: video.videoWidth, height: video.videoHeight});
 		    //setProcessedImage(result.data[0]);
 		    console.log(`Mesh received of type ${typeof result.data[1]}`);
 		    setMeshData(result.data[1]['mesh']);
@@ -234,7 +249,7 @@ const GradioMeshIntegrator = forwardRef(({gradio_url, video_elem_ref}, ref) => {
 
 
     return (
-	<div>
+	<div style={style}>
 	    <canvas ref={canvasRef} style={{ display: 'none' }} />
 	    <MeshViewer meshData={meshData} facesData={facesData} width={dims.width} height={dims.height}/>
 	</div>

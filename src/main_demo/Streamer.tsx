@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import {
   Button,
   TextField,
+  ToggleButton, ToggleButtonGroup,
 } from "@mui/material";
 
 import VideoDrawer, { VideoDrawerHandle } from './VideoDrawer';
@@ -336,6 +337,14 @@ export const StreamDemo: React.FC<{}> = () => {
   // Setup for features
   const [clipNumber, setClipNumber] = useState(0);
 
+  const [view, setView] = useState('videoDrawer');
+
+  const handleViewChange = (event, newView) => {
+    if (newView !== null) {
+      setView(newView);
+    }
+  };
+  
   return (
     <div>
 	      <TextField
@@ -346,15 +355,31 @@ export const StreamDemo: React.FC<{}> = () => {
   variant="outlined"
   sx={{ mr: 2 }}
 	      />
-      <video controls ref={videoRef1}  src={videoSrc1 ?? ""} />
-
-      <VideoDrawer ref={video_canvas_ref} srcVideoRef={videoRef1} />
-      
-      <GradioMeshIntegrator
-	ref={gradio_mesh_integrator_ref}
-	gradio_url={gradio_api_url}
-	video_elem_ref={videoRef1}
-      />
+      <ToggleButtonGroup
+        value={view}
+        exclusive
+        onChange={handleViewChange}
+        aria-label="View Toggle"
+      >
+        <ToggleButton value="videoDrawer" aria-label="Video Drawer">
+          Mediapipe Skeleton
+        </ToggleButton>
+        <ToggleButton value="gradioMeshIntegrator" aria-label="Gradio Mesh Integrator">
+          Gradio Mesh
+        </ToggleButton>
+      </ToggleButtonGroup>
+      <div style={{ display: 'flex' , width: '100%'}}>
+	<video controls ref={videoRef1} src={videoSrc1 ?? ""} style={{ flex: 1 }} />
+	      {view === 'videoDrawer' ? (
+		<VideoDrawer ref={video_canvas_ref} srcVideoRef={videoRef1} />
+	      ) : (
+		<GradioMeshIntegrator
+		  ref={gradio_mesh_integrator_ref}
+		  gradio_url={gradio_api_url}
+		  video_elem_ref={videoRef1}
+		/>
+	      )}
+      </div>
 
       <input
         type="file"

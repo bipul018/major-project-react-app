@@ -32,7 +32,7 @@ const App: React.FC = () => {
     <ThemeProvider theme={theme}>
       <CssBaseline /> {/* Reset browser styles */}
       <Header />
-      <Container component="main" maxWidth="lg">
+      <Container component="main" maxWidth={false} disableGutters>
         <Box sx={{ my: 4 }}> {/* Add spacing around the content */}
           <Home />
           <ProjectDetails />
