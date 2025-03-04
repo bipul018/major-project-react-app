@@ -111,13 +111,13 @@ const convertToFile = async (src: any, defaultName = "video.mp4") => {
 
 export const TaskListWithDropdown: React.FC<{
   taskItems: Array<{ endpoint: string; request_fields: RequestInputType[] }>;
+  // TODO:: Determine the actual type using return type of mechanism
+  apiUrl: any; // Actually a state of string, dont know exact type
 }> = ({ taskItems }) => {
   const [selectedEndpoint, setSelectedEndpoint] = useState<string>(taskItems[0].endpoint);
-  const [url, setUrl] = useState<string>("http://localhost:8080/");
   const videoComponentRef = useRef<any>(null);
 
   const [responseDetails, setResponseDetails] = useState<BackendResponse>({ type: "none", data: null });
-
 
   const handleVideo1Change = async (file: File | null) => {
     if (file) {
@@ -125,7 +125,7 @@ export const TaskListWithDropdown: React.FC<{
 	// TODO:: Does this url is always the uptodate thing or does it lag by the last state update ?
         gTaskItems.find((it) => it.endpoint == "task/save_video")?.request_fields as RequestInputType[],
         { video: file },
-        url + "task/save_video"
+        apiUrl + "task/save_video"
       );
       handleTaskResponse(result);
     }
@@ -183,7 +183,7 @@ export const TaskListWithDropdown: React.FC<{
       gTaskItems.find((it) => it.endpoint == "task/get_video")?.request_fields as RequestInputType[],
       {},
       // TODO:: Does this url is always the uptodate thing or does it lag by the last state update ?
-      url + "task/get_video"
+      apiUrl + "task/get_video"
     );
     if (response.status === "Success" && response.value.bytes) {
       const data = response.value.bytes;
@@ -223,14 +223,7 @@ export const TaskListWithDropdown: React.FC<{
             ))}
           </TextField>
         </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            fullWidth
-            label="URL"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-          />
-        </Grid>
+
       </Grid>
 
       {selectedTask && (
@@ -243,7 +236,7 @@ export const TaskListWithDropdown: React.FC<{
             fields={selectedTask.request_fields}
             onResponse={handleTaskResponse}
             overrides={{
-              url: () => url,
+              url: () => apiUrl,
               ...(selectedTask.request_fields
                 .filter((field) => field.type === "video" && field.nullable)
                 .reduce((acc, field) => {

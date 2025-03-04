@@ -1,6 +1,5 @@
 import React from "react";
-import { taskItems } from '../main_demo/taskItems';
-import { TaskListWithDropdown } from '../main_demo/ChooseTask';
+import { MainDemoController } from '../main_demo/MainDemoController';
 import { Box, Typography, Container } from "@mui/material";
 
 const Demo: React.FC = () => {
@@ -15,7 +14,7 @@ const Demo: React.FC = () => {
           Here is a live demo of our project. You can interact with the form, see results, and more.
         </Typography>
         {/* Your demo content (dropdown, form fields, etc.) */}
-        <TaskListWithDropdown taskItems={taskItems} />
+        <MainDemoController/>
       </Container>
     </Box>
   );

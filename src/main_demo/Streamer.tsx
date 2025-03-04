@@ -125,7 +125,10 @@ export const make_video_stream = ({video_ref, endpoint='localhost:8080/wsprocess
   };
 }
 
-export const StreamDemo: React.FC<{}> = () => {
+export const StreamDemo: React.FC<{
+  // TODO:: Determine the type of this thing and use it
+  apiUrl: string;
+}> = ({apiUrl}) => {
   const videoRef1 = useRef<HTMLVideoElement>(null);
   const [videoSrc1, setVideoSrc1] = useState<string | null>(null);
   const fileInputRef1 = useRef<HTMLInputElement>(null);
@@ -319,6 +322,7 @@ export const StreamDemo: React.FC<{}> = () => {
   useEffect(() => {
     if(videoRef1.current){
       setStreamer(make_video_stream({
+	endpoint: `${apiUrl}wsprocess_frame`,
 	video_ref: videoRef1,
 	rate_ms:ms_gap,
 	on_send:filter_args,
@@ -328,7 +332,7 @@ export const StreamDemo: React.FC<{}> = () => {
     return () => {
       stop_streaming();
     };
-  }, [videoRef1]);
+  }, [videoRef1, apiUrl]);
   
   const start_streaming = () => {
     //set_is_first(true);
@@ -405,26 +409,10 @@ export const StreamDemo: React.FC<{}> = () => {
 	}}
         sx={{ mr: 2 }}
       >
-        Upload Video 1
+        Upload Video
       </Button>
       
 
-
-      <Button
-        variant="outlined"
-        onClick={capture_canvas}
-        sx={{ mr: 2 }}
-      >
-        Capture Into Canvas
-      </Button>
-      
-      <Button
-        variant="outlined"
-        onClick={make_line}
-        sx={{ mr: 2 }}
-      >
-        Draw Line on Canvas
-      </Button>
       <Button
 	variant="outlined"
 	onClick={handleWebcamToggle}
@@ -455,6 +443,25 @@ export const StreamDemo: React.FC<{}> = () => {
       >
         Stop Streaming
       </Button>
+
+      {/*
+
+      <Button
+        variant="outlined"
+        onClick={capture_canvas}
+        sx={{ mr: 2 }}
+      >
+        Capture Into Canvas
+      </Button>
+      
+      <Button
+        variant="outlined"
+        onClick={make_line}
+        sx={{ mr: 2 }}
+      >
+        Draw Line on Canvas
+      </Button>
+
       <Button
         variant="outlined"
         onClick={() => {
@@ -494,6 +501,7 @@ export const StreamDemo: React.FC<{}> = () => {
   Get Clip
 	      </Button>
 	    </div>
+	*/}
     </div>
   );
 };

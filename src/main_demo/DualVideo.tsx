@@ -6,8 +6,6 @@ import {
   Button,
   Grid,
 } from "@mui/material";
-// import Streamer from "./Streamer.tsx";
-import {StreamDemo} from "./Streamer.tsx";
 
 export interface DualVideoProps {
   title: string;
@@ -153,12 +151,7 @@ export const DualVideo = forwardRef(
           >
             Upload Video 2
           </Button>
-	  {/*<Streamer videoRef={videoRef1}/>*/}
-          <Typography variant="h6" gutterBottom>
-	    Stream Demo below...
-          </Typography>
 	  
-	  <StreamDemo/>
 
         </Box>
       </Box>
