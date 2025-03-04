@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import {
   Button,
+  Grid,
+  Box,
   TextField,
   ToggleButton, ToggleButtonGroup,
 } from "@mui/material";
@@ -322,7 +324,7 @@ export const StreamDemo: React.FC<{
   useEffect(() => {
     if(videoRef1.current){
       setStreamer(make_video_stream({
-	endpoint: `${apiUrl}wsprocess_frame`,
+	endpoint: `${apiUrl.replace(/^(https?:\/\/|http:\/\/|https:\/\/|http:|https:)/, '')}wsprocess_frame`,
 	video_ref: videoRef1,
 	rate_ms:ms_gap,
 	on_send:filter_args,
@@ -357,14 +359,6 @@ export const StreamDemo: React.FC<{
   
   return (
     <div>
-	      <TextField
-  label="Enter Gradio API Url"
-  type="string"
-  value={gradio_api_url}
-  onChange={(e) => set_gradio_api_url(e.target.value)}
-  variant="outlined"
-  sx={{ mr: 2 }}
-	      />
       <ToggleButtonGroup
         value={view}
         exclusive
