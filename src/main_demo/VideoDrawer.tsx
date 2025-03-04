@@ -11,6 +11,7 @@ interface VideoDrawerProps {
   //updateInterval?: number;
   //width?: number;
   //height?: number;
+  style: any;
 }
 
 export interface VideoDrawerHandle {

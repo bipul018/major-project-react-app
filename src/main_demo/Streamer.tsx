@@ -6,6 +6,7 @@ import {
 } from "@mui/material";
 
 import VideoDrawer, { VideoDrawerHandle } from './VideoDrawer';
+// @ts-ignore
 import GradioMeshIntegrator from './GradioMeshIntegrator';
 
 // fkit just a simple fxn that returns some other fxns
@@ -182,7 +183,6 @@ export const StreamDemo: React.FC<{}> = () => {
   
   // Gradio communication stuff
   const [gradio_api_url, set_gradio_api_url] = useState('');
-  const [capture_gradio_signal, set_capture_gradio_signal] = useState(false);
   const gradio_mesh_integrator_ref = useRef<any>();
 
 
@@ -230,7 +230,7 @@ export const StreamDemo: React.FC<{}> = () => {
     return {metadata, frameBuffer};
   };
 
-  const handle_receive = async (data) => {
+  const handle_receive = async (data: any) => {
     //console.log(`The data was :\n${data}`);
     //const json_data = typeof data === "string" ? JSON.parse(data) : data;
     const json_data = JSON.parse(data);
@@ -248,12 +248,14 @@ export const StreamDemo: React.FC<{}> = () => {
     // TODO:: Implement this later (when you start actually giving a fk), with types
     if(message.toLowerCase().includes('yoga state changed')){
       // Has from, to, and frame_duration message
-      const {from, to, frame_duration, ...remaining} = rest;
+      // @ts-ignore
+      const {from, to, frame_duration, ...__remaining} = rest;
       console.log(`Yoga state ${from}, lasted for ${frame_duration} and changed to ${to}`);
     }
     else if(message.toLowerCase().includes('yoga predicted')){
       // has poses, confidences, text_suggestion for now
-      const {poses, confidences, ...remaining} = rest;
+      // @ts-ignore
+      const {poses, confidences, ...__remaining} = rest;
       console.log(`Yoga was predicted.\nSome top predictions were ${poses}\nThe confidences are ${confidences}'`);
 
       // Also trigger gradio api running by just toggling the `signal`
@@ -264,12 +266,14 @@ export const StreamDemo: React.FC<{}> = () => {
     }
     else if(message.toLowerCase().includes('yoga text feedback')){
       console.log(`Message [${timestamp}] RTT = ${rtt/1000}`);
-      const {text_suggestion, ...remaining} = rest;
+      // @ts-ignore
+      const {text_suggestion, ...__remaining} = rest;
       console.log(`You should be doing this: '${text_suggestion}'`);
     }
     else if(message.toLowerCase().includes('yoga voice feedback')){
       console.log(`Message [${timestamp}] RTT = ${rtt/1000}`);
-      const {voice_suggestion, ...remaining} = rest;
+      // @ts-ignore
+      const {voice_suggestion, ...__remaining} = rest;
       console.log(`The length of voice suggestion was ${voice_suggestion.length}`);
       // Decode base64 audio
       const audioSrc = `data:audio/wav;base64,${voice_suggestion}`;
@@ -280,15 +284,17 @@ export const StreamDemo: React.FC<{}> = () => {
     }
     else if(message.toLowerCase().includes('clip count')){
       // has just clip_count
-      const {clip_count, ...remaining} = rest;
+      // @ts-ignore
+      const {clip_count, ...__remaining} = rest;
       console.log(`There are currently ${clip_count} clips.`)
     }
     else if(message.toLowerCase().includes('draw line landmarks')){
-      const {landmark_type, landmarks, ...remaining} = rest;
+    // @ts-ignore
+      const {landmark_type, landmarks, ...__remaining} = rest;
       // TODO:: validate the `landmarks` being of proper shape maybe
       // console.log(`The landmarks were received of type "${landmark_type}", type of landmarks object is "${typeof landmarks}"`);
       capture_canvas();
-      landmarks.forEach(([start, end]) => {
+      landmarks.forEach(([start, end]: [any, any]) => {
 	const [sx, sy] = start;
 	const [ex, ey] = end;
 	const vcanv = video_canvas_ref.current;
@@ -339,7 +345,7 @@ export const StreamDemo: React.FC<{}> = () => {
 
   const [view, setView] = useState('videoDrawer');
 
-  const handleViewChange = (event, newView) => {
+  const handleViewChange = (_event: any, newView: any) => {
     if (newView !== null) {
       setView(newView);
     }
@@ -371,7 +377,7 @@ export const StreamDemo: React.FC<{}> = () => {
       <div style={{ display: 'flex' , width: '100%'}}>
 	<video controls ref={videoRef1} src={videoSrc1 ?? ""} style={{ flex: 1 }} />
 	      {view === 'videoDrawer' ? (
-		<VideoDrawer ref={video_canvas_ref} srcVideoRef={videoRef1} />
+		<VideoDrawer ref={video_canvas_ref} srcVideoRef={videoRef1} style="" />
 	      ) : (
 		<GradioMeshIntegrator
 		  ref={gradio_mesh_integrator_ref}
