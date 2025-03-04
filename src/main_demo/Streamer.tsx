@@ -377,9 +377,10 @@ export const StreamDemo: React.FC<{}> = () => {
       <div style={{ display: 'flex' , width: '100%'}}>
 	<video controls ref={videoRef1} src={videoSrc1 ?? ""} style={{ flex: 1 }} />
 	      {view === 'videoDrawer' ? (
-		<VideoDrawer ref={video_canvas_ref} srcVideoRef={videoRef1} style="" />
+		<VideoDrawer ref={video_canvas_ref} srcVideoRef={videoRef1} style={{flex:1}} />
 	      ) : (
 		<GradioMeshIntegrator
+		  style={{flex:1}}
 		  ref={gradio_mesh_integrator_ref}
 		  gradio_url={gradio_api_url}
 		  video_elem_ref={videoRef1}

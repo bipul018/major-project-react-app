@@ -1,16 +1,13 @@
-// src/components/Demo.tsx
 import React from "react";
-//import {FormComponent} from '../main_demo/RequestMaker.tsx';
-import {taskItems} from '../main_demo/taskItems.ts';
-import {TaskListWithDropdown} from '../main_demo/ChooseTask.tsx';
-//import {VideoComponent, VideoComponentRef} from '../main_demo/ChooseTask.tsx';
+import { taskItems } from '../main_demo/taskItems';
+import { TaskListWithDropdown } from '../main_demo/ChooseTask';
 import { Box, Typography, Container } from "@mui/material";
-
 
 const Demo: React.FC = () => {
   return (
-    <Box id="demo" sx={{ padding: "2rem" }}>
-      <Container maxWidth="lg">
+    <Box id="demo" sx={{ padding: "2rem", width: '100%' }} >
+      {/* Set maxWidth to false for full-width layout */}
+      <Container maxWidth={false}>
         <Typography variant="h4" component="h2" gutterBottom>
           Demo
         </Typography>

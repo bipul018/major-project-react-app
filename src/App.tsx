@@ -1,51 +1,33 @@
-//import reactLogo from './assets/react.svg'
-//import viteLogo from '/vite.svg'
-import { ThemeProvider, createTheme, CssBaseline, Container, Box } from '@mui/material';
-import './App.css';
+// App.tsx
+import { CssBaseline, ThemeProvider, createTheme } from '@mui/material'
+import { Route, Routes } from 'react-router-dom'
+import Layout from './components/Layout'
+import Demo from './components/Demo'
+import Home from './components/Home'
 
 const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#1976d2', // Customize your primary color
-    },
-    secondary: {
-      main: '#dc004e', // Customize your secondary color
+  components: {
+    MuiContainer: {
+      styleOverrides: {
+        root: {
+          paddingLeft: '0 !important',
+          paddingRight: '0 !important',
+        },
+      },
     },
   },
-  typography: {
-    fontFamily: 'Roboto, sans-serif', // Use a custom font
-  },
-});
+})
 
-import Header from "./components/Header";
-import Footer from "./components/Footer";
-import Team from "./components/Team";
-import Home from "./components/Home";
-import ProjectDetails from "./components/ProjectDetails";
-//import Resources from "./components/Resources";
-//import Contact from "./components/Contact";
-import Progress from "./components/Progress";
-import Demo from "./components/Demo";
-
-const App: React.FC = () => {
+export default function App() {
   return (
     <ThemeProvider theme={theme}>
-      <CssBaseline /> {/* Reset browser styles */}
-      <Header />
-      <Container component="main" maxWidth={false} disableGutters>
-        <Box sx={{ my: 4 }}> {/* Add spacing around the content */}
-          <Home />
-          <ProjectDetails />
-          <Progress />
-          <Team />
-          {/*<Resources />*/}
-          {/*<Contact />*/}
-          <Demo />
-        </Box>
-      </Container>
-      <Footer />
+      <CssBaseline />
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="demo" element={<Demo />} />
+        </Route>
+      </Routes>
     </ThemeProvider>
-  );
-};
-
-export default App;
+  )
+}

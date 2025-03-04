@@ -1,41 +1,24 @@
 // src/components/Home.tsx
-import React from "react";
 import { Box, Typography, List, ListItem, Link, Button } from "@mui/material";
+import { Link as RouterLink } from "react-router-dom";
+import Progress from "./Progress";
+import Contact from "./Contact";
+import ProjectDetails from "./ProjectDetails";
+import Resources from "./Resources";
+import Team from "./Team";
 
-const Home: React.FC = () => {
+const Home = () => {
   return (
     <Box sx={{ padding: "2rem" }}>
-      {/* Project Introduction */}
-      <Box id="home" sx={{ marginBottom: "2rem" }}>
-        <Typography variant="h4" component="h2" gutterBottom>
-	  DL Based Automated Yoga Assistance Using CNN and LSTM
-        </Typography>
-        <Typography variant="body1" paragraph>
-	  This project leverages AI and deep learning techniques to guide and improve yoga practice. Using advanced computer vision algorithms, it offers real-time posture feedback and suggestions for improvement.
-        </Typography>
-      </Box>
+      <ProjectDetails />
 
-      {/* Supervisors and Coordinators */}
-      <Box id="supervisors" sx={{ marginBottom: "2rem" }}>
-        <Typography variant="h5" component="h3" gutterBottom>
-          Supervisors {/*and Coordinators*/}
-        </Typography>
-        <List>
-          <ListItem>
-            <Typography variant="body1">
-              <strong>Supervisor:</strong> Dr. Ganesh Gautam
-            </Typography>
-          </ListItem>
-          {/*<ListItem>
-            <Typography variant="body1">
-              <strong>Coordinators:</strong> 
-            </Typography>
-          </ListItem>*/}
-        </List>
+      {/* Progress Section with anchor */}
+      <Box id="progress" component="section" sx={{ marginBottom: "2rem" }}>
+        <Progress />
       </Box>
 
       {/* Quick Links */}
-      <Box id="quick-links">
+      <Box id="quick-links" sx={{ mt: 4 }}>
         <Typography variant="h5" component="h3" gutterBottom>
           Quick Links
         </Typography>
@@ -47,7 +30,8 @@ const Home: React.FC = () => {
             <Button
               variant="contained"
               color="primary"
-              href="#demo"
+              component={RouterLink}
+              to="/demo"
               sx={{ textTransform: "none" }}
             >
               Go to Demo
@@ -74,17 +58,28 @@ const Home: React.FC = () => {
             </Link>
           </ListItem>
           <ListItem>
-            <Link href="#progress" color="primary">
+            {/*<Link href="#progress" color="primary">*/}
+	    <Link to="progress" color="primary">
               View Project Progress
             </Link>
           </ListItem>
           <ListItem>
-            <Link href="#contact" color="primary">
+            {/*<Link href="#contact" color="primary">*/}
+	    <Link to="contact" color="primary">
               Contact Us
             </Link>
           </ListItem>
         </List>
       </Box>
+      <Resources />
+      <Team />
+
+      {/* Contact Section with anchor */}
+      <Box id="contact" component="section">
+        <Contact />
+      </Box>
+
+
     </Box>
   );
 };

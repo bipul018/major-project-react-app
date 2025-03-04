@@ -203,7 +203,7 @@ export const TaskListWithDropdown: React.FC<{
   const selectedTask = taskItems.find((it) => it.endpoint === selectedEndpoint);
 
   return (
-    <Box>
+    <Box sx={{ width: '100%' }}>
       <Typography variant="h6" gutterBottom>
         The request form field is:
       </Typography>

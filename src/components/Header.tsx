@@ -1,38 +1,22 @@
+// components/Header.tsx
+import { AppBar, Button, Toolbar, Typography } from '@mui/material'
+import { Link } from 'react-router-dom'
 
-// src/components/Header.tsx
-import React from "react";
-import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
-
-const Header: React.FC = () => {
+export default function Header() {
   return (
-    <AppBar position="static">
+    <AppBar position="static" sx={{ mb: 4 }}>
       <Toolbar>
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          Project Status Website
+          Your Logo
         </Typography>
-        <Box>
-          <Button color="inherit" href="#home">
-            Home
-          </Button>
-          <Button color="inherit" href="#details">
-            Project Details
-          </Button>
-          <Button color="inherit" href="#team">
-            Team
-          </Button>
-          <Button color="inherit" href="#progress">
-            Progress
-          </Button>
-          <Button color="inherit" href="#resources">
-            Resources
-          </Button>
-          <Button color="inherit" href="#contact">
-            Contact
-          </Button>
-        </Box>
+        <Button component={Link} to="/" color="inherit">
+          Home
+        </Button>
+        <Button component={Link} to="/demo" color="inherit">
+          Demo
+        </Button>
+        {/* Add more navigation links as needed */}
       </Toolbar>
     </AppBar>
-  );
-};
-
-export default Header;
+  )
+}

@@ -12,7 +12,7 @@ const Footer: React.FC = () => {
         mt: 4, // Margin top
       }}
     >
-      <Container maxWidth="lg">
+      <Container maxWidth={false}>
         <Typography variant="body2" color="textSecondary" align="center">
           &copy; {new Date().getFullYear()} Project Status Website.
         </Typography>

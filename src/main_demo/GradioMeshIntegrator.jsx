@@ -249,7 +249,7 @@ const GradioMeshIntegrator = forwardRef(({gradio_url, video_elem_ref, style}, re
 
 
     return (
-	<div style={style}>
+	<div style={{ ...style, border: '1px solid #ccc' }}>
 	    <canvas ref={canvasRef} style={{ display: 'none' }} />
 	    <MeshViewer meshData={meshData} facesData={facesData} width={dims.width} height={dims.height}/>
 	</div>
