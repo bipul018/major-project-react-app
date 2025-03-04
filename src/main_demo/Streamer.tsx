@@ -10,6 +10,8 @@ import {
 import VideoDrawer, { VideoDrawerHandle } from './VideoDrawer';
 // @ts-ignore
 import GradioMeshIntegrator from './GradioMeshIntegrator';
+import StreamEventManager, { StreamEventManagerHandle, StreamEvent } from './StreamEventManager';
+
 
 // fkit just a simple fxn that returns some other fxns
 export const make_video_stream = ({video_ref, endpoint='localhost:8080/wsprocess_frame', on_receive=null, on_send=null, rate_ms=100} : {
@@ -235,6 +237,9 @@ export const StreamDemo: React.FC<{
     return {metadata, frameBuffer};
   };
 
+  // Event list manager
+  const eventManagerRef = useRef<StreamEventManagerHandle>(null);
+
   const handle_receive = async (data: any) => {
     //console.log(`The data was :\n${data}`);
     //const json_data = typeof data === "string" ? JSON.parse(data) : data;
@@ -263,10 +268,25 @@ export const StreamDemo: React.FC<{
       const {poses, confidences, ...__remaining} = rest;
       console.log(`Yoga was predicted.\nSome top predictions were ${poses}\nThe confidences are ${confidences}'`);
 
+      // Add a new event
+      if (videoRef1.current) {
+        eventManagerRef.current?.addEvent(timestamp, videoRef1.current);
+      }
+
+      // Add the yoga prediction
+      eventManagerRef.current?.editEvent(timestamp, 'yogaPose', {
+        pose: poses[0],
+        confidence: confidences[0]
+      });
+
       // Also trigger gradio api running by just toggling the `signal`
       //set_capture_gradio_signal(!capture_gradio_signal);
       if(gradio_mesh_integrator_ref.current){
-	gradio_mesh_integrator_ref.current.run_gradio_inference();
+	// Fxn to add mesh once retrieved from gradio api
+	const add_mesh_fn = (data:any) => {
+	  eventManagerRef.current?.editEvent(timestamp,'gradioMesh', data);
+	};
+	gradio_mesh_integrator_ref.current.run_gradio_inference(add_mesh_fn);
       }
     }
     else if(message.toLowerCase().includes('yoga text feedback')){
@@ -274,6 +294,9 @@ export const StreamDemo: React.FC<{
       // @ts-ignore
       const {text_suggestion, ...__remaining} = rest;
       console.log(`You should be doing this: '${text_suggestion}'`);
+      // add text suggestion to event list
+      eventManagerRef.current?.editEvent(timestamp, 'textFeedback', text_suggestion);
+
     }
     else if(message.toLowerCase().includes('yoga voice feedback')){
       console.log(`Message [${timestamp}] RTT = ${rtt/1000}`);
@@ -285,6 +308,11 @@ export const StreamDemo: React.FC<{
       
       // Create an audio element and play it
       const audio = new Audio(audioSrc);
+
+      // Add the audio also as a event entry (TODO:: make it use 'audio' object later
+      eventManagerRef.current?.editEvent(timestamp, 'audioFeedback', 
+        `data:audio/wav;base64,${voice_suggestion}`);
+
       audio.play();
     }
     else if(message.toLowerCase().includes('clip count')){
@@ -299,6 +327,10 @@ export const StreamDemo: React.FC<{
       // TODO:: validate the `landmarks` being of proper shape maybe
       // console.log(`The landmarks were received of type "${landmark_type}", type of landmarks object is "${typeof landmarks}"`);
       capture_canvas();
+
+      // add landmarks as event
+      eventManagerRef.current?.editEvent(timestamp, 'landmarks', landmarks);
+
       landmarks.forEach(([start, end]: [any, any]) => {
 	const [sx, sy] = start;
 	const [ex, ey] = end;
@@ -372,7 +404,53 @@ export const StreamDemo: React.FC<{
           Gradio Mesh
         </ToggleButton>
       </ToggleButtonGroup>
-      <div style={{ display: 'flex' , width: '100%'}}>
+	      <TextField
+  label="Enter Gradio API Url"
+  type="string"
+  value={gradio_api_url}
+  onChange={(e) => set_gradio_api_url(e.target.value)}
+  variant="outlined"
+  sx={{ mr: 2 }}
+	      />
+
+      {/* Video and Side Panels Section */}
+      <Grid container spacing={2}>
+        {/* Video Element (Left Side) */}
+        <Grid item xs={8}>
+          <video
+            controls
+            ref={videoRef1}
+            src={videoSrc1 ?? ""}
+            style={{ width: "100%", height: "auto" }}
+          />
+        </Grid>
+
+        {/* Right Side Panels */}
+        <Grid item xs={4}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            {/* Video Drawer */}
+            {view === "videoDrawer" && (
+              <VideoDrawer
+                ref={video_canvas_ref}
+                srcVideoRef={videoRef1}
+                style={{ width: "100%", height: "auto" }}
+              />
+            )}
+
+            {/* Gradio Mesh Integrator */}
+            {view === "gradioMeshIntegrator" && (
+              <GradioMeshIntegrator
+                style={{ width: "100%", height: "auto" }}
+                ref={gradio_mesh_integrator_ref}
+                gradio_url={gradio_api_url}
+                video_elem_ref={videoRef1}
+              />
+            )}
+          </Box>
+        </Grid>
+      </Grid>
+
+	{/*<div style={{ display: 'flex' , width: '100%'}}>
 	<video controls ref={videoRef1} src={videoSrc1 ?? ""} style={{ flex: 1 }} />
 	      {view === 'videoDrawer' ? (
 		<VideoDrawer ref={video_canvas_ref} srcVideoRef={videoRef1} style={{flex:1}} />
@@ -384,8 +462,13 @@ export const StreamDemo: React.FC<{
 		  video_elem_ref={videoRef1}
 		/>
 	      )}
-      </div>
-
+      </div>*/}
+       {/* Event manager component */}
+        <StreamEventManager
+          ref={eventManagerRef}
+          videoDrawerRef={video_canvas_ref}
+          gradioMeshRef={gradio_mesh_integrator_ref}
+        />
       <input
         type="file"
         accept="video/*"
