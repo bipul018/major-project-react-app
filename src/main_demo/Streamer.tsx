@@ -148,6 +148,7 @@ export const StreamDemo: React.FC<{
     video_canvas_ref.current?.clearCanvas();
     //console.log("hi, shouldve cleared canvsd");
   };
+  // @ts-ignore
   const make_line = () => {
     const vcanv = video_canvas_ref.current;
     if(vcanv){
@@ -382,6 +383,7 @@ export const StreamDemo: React.FC<{
   };
 
   // Setup for features
+  // @ts-ignore
   const [clipNumber, setClipNumber] = useState(0);
 
   const [view, setView] = useState('videoDrawer');

@@ -27,6 +27,8 @@ interface StreamEventManagerProps {
 
 const StreamEventManager = forwardRef<StreamEventManagerHandle, StreamEventManagerProps>(
   ({ videoDrawerRef, gradioMeshRef }, ref) => {
+    // @ts-ignore
+    const _ = videoDrawerRef;
     const [events, setEvents] = useState<StreamEvent[]>([]);
     const [selectedEvent, setSelectedEvent] = useState<StreamEvent | null>(null);
 

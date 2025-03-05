@@ -57,18 +57,20 @@ const Home = () => {
               GitHub Repository to the Frontend
             </Link>
           </ListItem>
-          <ListItem>
-            {/*<Link href="#progress" color="primary">*/}
-	    <Link to="progress" color="primary">
-              View Project Progress
-            </Link>
-          </ListItem>
-          <ListItem>
-            {/*<Link href="#contact" color="primary">*/}
-	    <Link to="contact" color="primary">
-              Contact Us
-            </Link>
-          </ListItem>
+	  {
+            //<ListItem>
+            //  {/*<Link href="#progress" color="primary">*/}
+	    //  <Link to="#progress" color="primary">
+	    //    View Project Progress
+	    //  </Link>
+            //</ListItem>
+	    //<ListItem>
+	    //  {/*<Link href="#contact" color="primary">*/}
+	    //  <Link to="#contact" color="primary">
+	    //    Contact Us
+	    //  </Link>
+	    //</ListItem>
+	  }
         </List>
       </Box>
       <Resources />
