@@ -1,5 +1,5 @@
 import React, { forwardRef, useImperativeHandle, useState } from 'react';
-import { Box, TextField, MenuItem, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableRow } from '@mui/material';
+import { Button, Box, TextField, MenuItem, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableRow } from '@mui/material';
 
 export interface StreamEvent {
   timestamp: number;

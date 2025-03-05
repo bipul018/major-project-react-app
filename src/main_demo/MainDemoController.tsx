@@ -1,20 +1,9 @@
-import React, { useState, useRef } from "react";
+import { useState } from "react";
 import {
   Box,
-  Typography,
-  MenuItem,
   TextField,
   Button,
   Grid,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  List,
-  ListItem,
 } from "@mui/material";
 import { taskItems } from '../main_demo/taskItems';
 import { TaskListWithDropdown } from '../main_demo/ChooseTask';

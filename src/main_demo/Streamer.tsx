@@ -10,7 +10,7 @@ import {
 import VideoDrawer, { VideoDrawerHandle } from './VideoDrawer';
 // @ts-ignore
 import GradioMeshIntegrator from './GradioMeshIntegrator';
-import StreamEventManager, { StreamEventManagerHandle, StreamEvent } from './StreamEventManager';
+import StreamEventManager, { StreamEventManagerHandle } from './StreamEventManager';
 
 
 // fkit just a simple fxn that returns some other fxns

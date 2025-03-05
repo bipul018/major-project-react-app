@@ -113,7 +113,7 @@ export const TaskListWithDropdown: React.FC<{
   taskItems: Array<{ endpoint: string; request_fields: RequestInputType[] }>;
   // TODO:: Determine the actual type using return type of mechanism
   apiUrl: any; // Actually a state of string, dont know exact type
-}> = ({ taskItems }) => {
+}> = ({ taskItems, apiUrl }) => {
   const [selectedEndpoint, setSelectedEndpoint] = useState<string>(taskItems[0].endpoint);
   const videoComponentRef = useRef<any>(null);
 
