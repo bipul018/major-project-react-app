@@ -5,8 +5,11 @@ export interface StreamEvent {
   timestamp: number;
   frameData: string;
   yogaPose?: { pose: string; confidence: number };
+  yogaPoseDelay?: number;
   textFeedback?: string;
+  textFeedbackDelay?: number;
   audioFeedback?: string;
+  audioFeedbackDelay?: number;
   landmarks?: Array<[[number, number], [number, number]]>;
   gradioMesh?: any;
 }
@@ -104,6 +107,63 @@ const StreamEventManager = forwardRef<StreamEventManagerHandle, StreamEventManag
                         <TableCell>{selectedEvent.textFeedback}</TableCell>
                       </TableRow>
                     )}
+
+		    {/* Audio Player: Render only if audioFeedback exists */}
+		    {selectedEvent.audioFeedback && (
+                      <Box sx={{ mt: 2 }}>
+			<Typography variant="h6">Audio Feedback</Typography>
+			<audio controls>
+			  <source
+			    src={`${selectedEvent.audioFeedback}`}
+			    type="audio/wav"
+			  />
+			  Your browser does not support the audio element.
+			</audio>
+                      </Box>
+		    )}		    
+	
+                    {selectedEvent.yogaPoseDelay && (
+                      <TableRow>
+                        <TableCell>Yoga Pose RTT</TableCell>
+                        <TableCell>
+			  {selectedEvent.yogaPoseDelay/1000} s
+                        </TableCell>
+                      </TableRow>
+                    )}
+
+		    {selectedEvent.textFeedbackDelay && (
+                      <TableRow>
+                        <TableCell>Text Feedback RTT</TableCell>
+                        <TableCell>
+			  {selectedEvent.textFeedbackDelay/1000} s
+                        </TableCell>
+                      </TableRow>
+		    )}
+
+		    {selectedEvent.audioFeedbackDelay && (
+                      <TableRow>
+                        <TableCell>Voice Feedback RTT</TableCell>
+                        <TableCell>
+			  {selectedEvent.audioFeedbackDelay/1000} s
+                        </TableCell>
+                      </TableRow>
+		    )}
+
+		    {selectedEvent.gradioMesh && (
+                      <TableRow>
+                        <TableCell>Human Mesh Model</TableCell>
+                        <TableCell>
+			  <Button variant="outlined"
+  onClick={()=>{
+    gradioMeshRef.current?.override_mesh_data(selectedEvent.gradioMesh);
+  }}
+  sx={{ mr: 2 }}>
+  Show Mesh
+</Button>
+
+                        </TableCell>
+                      </TableRow>
+		    )}
 
                     {/* Add more rows for other data types */}
                   </TableBody>
