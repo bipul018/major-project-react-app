@@ -24,8 +24,8 @@ const MeshViewer = ({ meshData, facesData=null, width, height }) => {
 	
 	// Set up camera and renderer
 	camera.position.z = 5;
-	renderer.setSize(width,
-			 height);
+	//renderer.setSize(width,
+	//		 height);
 	renderer.setClearColor(0xeeeeee);
 	
 	// Add controls
@@ -70,8 +70,8 @@ const MeshViewer = ({ meshData, facesData=null, width, height }) => {
 	    const renderer = rendererRef.current;
 	    camera.aspect = width / height;
 	    camera.updateProjectionMatrix();
-	    renderer.setSize(width,
-			     height);
+	    //renderer.setSize(width,
+	    //height);
 	}
     };
 
@@ -82,6 +82,16 @@ const MeshViewer = ({ meshData, facesData=null, width, height }) => {
     useEffect(() => {
 	console.log(`Mesh data changed (inside MeshViewer)`);
 	if (!meshData || !sceneRef.current || !cameraRef.current || !controlsRef.current) return;
+
+	if (mountRef.current && rendererRef.current ){
+	    const parentDiv = mountRef.current;
+	    const newWidth = parentDiv.clientWidth;
+	    const newHeight = parentDiv.clientHeight;
+	    cameraRef.current?.updateProjectionMatrix();
+	    // Update renderer size
+	    rendererRef.current?.setSize(newWidth, newHeight);
+	}
+
 	console.log(`There was a mesh data also in there`);
 	// Clear previous mesh
 	sceneRef.current.children = sceneRef.current.children.filter(
@@ -175,7 +185,7 @@ const MeshViewer = ({ meshData, facesData=null, width, height }) => {
 	console.log(`Finished doing stuff in mesh viewer, so quitting`);
     }, [meshData, facesData]);
 
-    return <div ref={mountRef} style={{ width: width, height: width }} />;
+    return <div ref={mountRef} style={{ width: "100%", height: "100%" }} />;
 };
 
 // Utility fxn to help draw upon a mesh viewer?
@@ -201,7 +211,7 @@ const GradioMeshIntegrator = forwardRef(({gradio_url, video_elem_ref, style}, re
     }, [video_elem_ref]);
 
     //useEffect(() => {
-    const run_gradio_inference = async () => {
+    const run_gradio_inference = async (data_callback = null) => {
 	console.log(`I was signaled to run gradio api inference`);
 	if (!gradio_url || !video_elem_ref.current) return;
 	
@@ -232,6 +242,9 @@ const GradioMeshIntegrator = forwardRef(({gradio_url, video_elem_ref, style}, re
 		    setDims({width: video.videoWidth, height: video.videoHeight});
 		    //setProcessedImage(result.data[0]);
 		    console.log(`Mesh received of type ${typeof result.data[1]}`);
+		    if(data_callback){
+			data_callback(result.data[1]);
+		    }
 		    setMeshData(result.data[1]['mesh']);
 		    if(result.data[1]['faces']){
 			setFacesData(result.data[1]['faces']);
@@ -242,9 +255,21 @@ const GradioMeshIntegrator = forwardRef(({gradio_url, video_elem_ref, style}, re
 	    }
 	}, 'image/png');
     };
+
+    // A fxn to override default source setting
+    const override_mesh_data = (mesh_face_data) => {
+	if(mesh_face_data){
+	    setMeshData(mesh_face_data['mesh']);
+	    if(mesh_face_data['faces']){
+		setFacesData(mesh_face_data['faces']);
+	    }
+	}
+    };
+    
     // Expose the childMethod to the parent through the ref
     useImperativeHandle(ref, () => ({
-	run_gradio_inference
+	run_gradio_inference,
+	override_mesh_data,
     }));
 
 
@@ -252,6 +277,7 @@ const GradioMeshIntegrator = forwardRef(({gradio_url, video_elem_ref, style}, re
 	<div style={{ ...style, border: '1px solid #ccc' }}>
 	    <canvas ref={canvasRef} style={{ display: 'none' }} />
 	    <MeshViewer meshData={meshData} facesData={facesData} width={dims.width} height={dims.height}/>
+	    {/*<MeshViewer meshData={meshData} facesData={facesData} width="width" height="height"/>*/}
 	</div>
     );
     
