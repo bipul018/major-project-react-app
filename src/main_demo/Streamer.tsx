@@ -219,7 +219,7 @@ export const StreamDemo: React.FC<{
     };
   }, [videoSrc1]);
 
-  const ms_gap = 100;
+  const ms_gap = 33.333;
 
   // TODO:: Make a state machine like thing, or at least make it type specific
   const additional_args = useRef<any>(null);
