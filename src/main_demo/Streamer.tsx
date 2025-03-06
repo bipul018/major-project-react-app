@@ -376,6 +376,7 @@ export const StreamDemo: React.FC<{
     //set_is_first(true);
     //is_first.current = true;
     additional_args.current = { 'fps': 1000/ms_gap };
+    console.log(`Starting stream at ${additional_args.current.fps} fps`);
     streamer.startStreaming();
   };
   const stop_streaming = () => {
